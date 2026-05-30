@@ -50,4 +50,4 @@ msbuild NeedyNest.sln /p:Configuration=Debug
 
 **License & Contact**
 - No license file is included. Add a `LICENSE` file (e.g., MIT) if you wish to open-source this project.
-- For questions or assistance, open an issue on the GitHub repository.
+- For questions or assistance, open an issue on the GitHub repository .
