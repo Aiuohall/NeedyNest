@@ -1,0 +1,280 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A45DC846-339F-4A70-B955-097CCB2F9DA7}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>NeedyNest</RootNamespace>
+    <AssemblyName>NeedyNest</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AddUser.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddUser.Designer.cs">
+      <DependentUpon>AddUser.cs</DependentUpon>
+    </Compile>
+    <Compile Include="allUserAdminView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="allUserAdminView.Designer.cs">
+      <DependentUpon>allUserAdminView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Course.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Course.Designer.cs">
+      <DependentUpon>Course.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CourseDetails.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CourseDetails.Designer.cs">
+      <DependentUpon>CourseDetails.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Deleteuser.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Deleteuser.Designer.cs">
+      <DependentUpon>Deleteuser.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddBooks.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddBooks.Designer.cs">
+      <DependentUpon>AddBooks.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DistributionForModerator.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DistributionForModerator.Designer.cs">
+      <DependentUpon>DistributionForModerator.cs</DependentUpon>
+    </Compile>
+    <Compile Include="EditProfiledashboard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditProfiledashboard.Designer.cs">
+      <DependentUpon>EditProfiledashboard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PaidCourseDashboard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PaidCourseDashboard.Designer.cs">
+      <DependentUpon>PaidCourseDashboard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="payment history.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="payment history.Designer.cs">
+      <DependentUpon>payment history.cs</DependentUpon>
+    </Compile>
+    <Compile Include="RecivedBook.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RecivedBook.Designer.cs">
+      <DependentUpon>RecivedBook.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Needer_dash.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Needer_dash.Designer.cs">
+      <DependentUpon>Needer_dash.cs</DependentUpon>
+    </Compile>
+    <Compile Include="form_Needer.cs" />
+    <Compile Include="Login.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Login.Designer.cs">
+      <DependentUpon>Login.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Add Materials.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Add Materials.Designer.cs">
+      <DependentUpon>Add Materials.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Distribution.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Distribution.Designer.cs">
+      <DependentUpon>Distribution.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PromoteModerator.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PromoteModerator.Designer.cs">
+      <DependentUpon>PromoteModerator.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Session.cs" />
+    <Compile Include="SignUp.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SignUp.Designer.cs">
+      <DependentUpon>SignUp.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Moderator dashboard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Moderator dashboard.Designer.cs">
+      <DependentUpon>Moderator dashboard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AdminDashBoard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AdminDashBoard.Designer.cs">
+      <DependentUpon>AdminDashBoard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddUserAdminView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddUserAdminView.Designer.cs">
+      <DependentUpon>AddUserAdminView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserDashBoard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserDashBoard.Designer.cs">
+      <DependentUpon>UserDashBoard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Distributor_dash.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Distributor_dash.Designer.cs">
+      <DependentUpon>Distributor_dash.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="UI\BaseForm.cs" />
+    <Compile Include="UI\ThemeManager.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UserApproval.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserApproval.Designer.cs">
+      <DependentUpon>UserApproval.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="AddUser.resx">
+      <DependentUpon>AddUser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="allUserAdminView.resx">
+      <DependentUpon>allUserAdminView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Course.resx">
+      <DependentUpon>Course.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CourseDetails.resx">
+      <DependentUpon>CourseDetails.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Deleteuser.resx">
+      <DependentUpon>Deleteuser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddBooks.resx">
+      <DependentUpon>AddBooks.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DistributionForModerator.resx">
+      <DependentUpon>DistributionForModerator.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EditProfiledashboard.resx">
+      <DependentUpon>EditProfiledashboard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PaidCourseDashboard.resx">
+      <DependentUpon>PaidCourseDashboard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="payment history.resx">
+      <DependentUpon>payment history.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="RecivedBook.resx">
+      <DependentUpon>RecivedBook.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Needer_dash.resx">
+      <DependentUpon>Needer_dash.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Login.resx">
+      <DependentUpon>Login.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Add Materials.resx">
+      <DependentUpon>Add Materials.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Distribution.resx">
+      <DependentUpon>Distribution.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PromoteModerator.resx">
+      <DependentUpon>PromoteModerator.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SignUp.resx">
+      <DependentUpon>SignUp.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Moderator dashboard.resx">
+      <DependentUpon>Moderator dashboard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AdminDashBoard.resx">
+      <DependentUpon>AdminDashBoard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddUserAdminView.resx">
+      <DependentUpon>AddUserAdminView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserDashBoard.resx">
+      <DependentUpon>UserDashBoard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Distributor_dash.resx">
+      <DependentUpon>Distributor_dash.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="UserApproval.resx">
+      <DependentUpon>UserApproval.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

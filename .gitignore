@@ -1,0 +1,69 @@
+# Visual Studio
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.cache
+*.log
+*.pdb
+*.ilk
+*.nupkg
+*.publishsettings
+*.vspscc
+*.vssscc
+_ReSharper*/
+*ReSharper*/
+*.DotSettings.user
+*.DotSettings
+
+# Build results
+bin/
+obj/
+Debug/
+Release/
+
+# Rider
+.idea/
+
+# Node
+node_modules/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Visual Studio temporary files
+*.db
+*.db-shm
+*.db-wal
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Others
+*.vsix
+*.cache
+
+# Do not ignore the project files and source
+!/*.csproj
+!/*.sln
+
+# Ignore NuGet packages
+**/packages/*
+
+# Ignore compiled outputs
+*.exe
+*.dll
+*.appx
+*.msix
+
+# Optional: ignore large database backup if you prefer
+# NeedyNest.bacpac
