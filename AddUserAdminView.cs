@@ -22,13 +22,25 @@ namespace NeedyNest
 
         private void manageuserdashboardform_Load(object sender, EventArgs e)
         {
+            // Dedicated approval entry point (created in code so the Designer is untouched).
+            var approveButton = new System.Windows.Forms.Button { Text = "Approve Members" };
+            approveButton.Click += (s, ev) =>
+            {
+                new ApproveMembers(uName).Show();
+                this.Hide();
+            };
+
+            int pending = ApproveMembers.GetPendingCount();
+
             DashboardLayout.Apply(
                 this,
                 "Manage Users",
                 uName,
-                new[] { alluser, button3, button4, button5 },
+                new[] { approveButton, alluser, button3, button4, button5 },
                 button6,
-                null);
+                null,
+                approveButton,
+                pending);
         }
 
         private void button6_Click(object sender, EventArgs e)

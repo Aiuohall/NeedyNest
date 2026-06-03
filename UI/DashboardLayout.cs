@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 namespace NeedyNest.UI
@@ -21,7 +22,9 @@ namespace NeedyNest.UI
             string welcomeName,
             Button[] actions,
             Button footerButton,
-            Control[] hideControls = null)
+            Control[] hideControls = null,
+            Button badgeButton = null,
+            int badgeCount = 0)
         {
             form.SuspendLayout();
 
@@ -43,13 +46,23 @@ namespace NeedyNest.UI
                 foreach (var c in hideControls)
                     if (c != null) c.Visible = false;
 
-            // ── Header ────────────────────────────────────────────────────────────
+            // ── Header (gradient banner) ───────────────────────────────────────────
             var header = new Panel { Dock = DockStyle.Top, Height = 86, BackColor = ThemeManager.PrimaryColor };
+            header.Paint += (s, e) =>
+            {
+                using (var brush = new LinearGradientBrush(header.ClientRectangle,
+                           ThemeManager.PrimaryColor, ThemeManager.HoverColor, LinearGradientMode.Horizontal))
+                    e.Graphics.FillRectangle(brush, header.ClientRectangle);
+                // thin accent strip along the bottom edge
+                using (var accent = new SolidBrush(ThemeManager.AccentColor))
+                    e.Graphics.FillRectangle(accent, 0, header.Height - 3, header.Width, 3);
+            };
 
             var titleLabel = new Label
             {
                 Text      = title,
                 ForeColor = Color.White,
+                BackColor = Color.Transparent,
                 Font      = new Font("Segoe UI", 16F, FontStyle.Bold),
                 AutoSize  = true,
                 Location  = new Point(30, 18)
@@ -57,7 +70,8 @@ namespace NeedyNest.UI
             var subtitleLabel = new Label
             {
                 Text      = "NeedyNest • Community Resource System",
-                ForeColor = Color.FromArgb(150, 195, 215),
+                ForeColor = Color.FromArgb(170, 210, 228),
+                BackColor = Color.Transparent,
                 Font      = new Font("Segoe UI", 8.5F, FontStyle.Regular),
                 AutoSize  = true,
                 Location  = new Point(32, 52)
@@ -65,7 +79,8 @@ namespace NeedyNest.UI
             var welcomeLabel = new Label
             {
                 Text      = "Welcome, " + welcomeName,
-                ForeColor = Color.FromArgb(206, 231, 242),
+                ForeColor = Color.White,
+                BackColor = Color.Transparent,
                 Font      = new Font("Segoe UI", 11.5F, FontStyle.Bold),
                 AutoSize  = true,
                 Anchor    = AnchorStyles.Top | AnchorStyles.Right
@@ -80,6 +95,7 @@ namespace NeedyNest.UI
             var footer = new Panel { Dock = DockStyle.Bottom, Height = 66, BackColor = ThemeManager.BackgroundColor };
             if (footerButton != null)
             {
+                ThemeManager.StyleButton(footerButton);
                 form.Controls.Remove(footerButton);
                 footerButton.Size   = new Size(160, 42);
                 footerButton.Anchor = AnchorStyles.Right;
@@ -95,8 +111,26 @@ namespace NeedyNest.UI
             foreach (var b in actions)
             {
                 if (b == null) continue;
+                ThemeManager.StyleButton(b); // ensure code-created buttons are themed too
                 form.Controls.Remove(b);
                 content.Controls.Add(b);
+            }
+
+            // Optional red pending-count badge pinned to a button's top-right corner.
+            Label badge = null;
+            if (badgeButton != null && badgeCount > 0)
+            {
+                badge = new Label
+                {
+                    Text      = badgeCount > 99 ? "99+" : badgeCount.ToString(),
+                    BackColor = ThemeManager.DangerHover,
+                    ForeColor = Color.White,
+                    Font      = new Font("Segoe UI", 9F, FontStyle.Bold),
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    AutoSize  = false,
+                    Size      = new Size(26, 26)
+                };
+                content.Controls.Add(badge);
             }
 
             void LayoutButtons()
@@ -120,6 +154,14 @@ namespace NeedyNest.UI
                     b.Font     = new Font("Segoe UI", 11F, FontStyle.Bold);
                     b.TextAlign = ContentAlignment.MiddleCenter;
                     y += h + gap;
+                }
+
+                if (badge != null && badgeButton != null)
+                {
+                    badge.Location = new Point(
+                        badgeButton.Right - 14,
+                        badgeButton.Top - 12);
+                    badge.BringToFront();
                 }
             }
             content.Resize += (s, e) => LayoutButtons();

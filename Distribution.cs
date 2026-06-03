@@ -57,28 +57,16 @@ namespace NeedyNest
                 {
                     cn.Open();
 
-                    // Retrieve role from signup table
-                    string role;
-                    using (SqlCommand roleCmd = new SqlCommand(
-                        "SELECT role FROM signup WHERE username = @username", cn))
-                    {
-                        roleCmd.Parameters.AddWithValue("@username", uName);
-                        object result = roleCmd.ExecuteScalar();
-
-                        if (result == null)
-                        {
-                            MessageBox.Show("User role not found in signup table.");
-                            return false;
-                        }
-                        role = result.ToString();
-                    }
+                    // Use the role captured at login (works for every account,
+                    // including ones not present in the signup table).
+                    string role = string.IsNullOrEmpty(Session.LoggedInRole) ? "Unknown" : Session.LoggedInRole;
 
                     // Insert into Distribution table
                     using (SqlCommand cmd = new SqlCommand(
                         "INSERT INTO Distribution (Data, FileName, extension, username, role) " +
                         "VALUES (@data, @name, @extn, @username, @role)", cn))
                     {
-                        cmd.Parameters.Add("@data", SqlDbType.VarBinary).Value = buffer;
+                        cmd.Parameters.Add("@data", SqlDbType.VarBinary, -1).Value = buffer; // -1 = MAX (large files)
                         cmd.Parameters.Add("@name", SqlDbType.VarChar).Value = name;
                         cmd.Parameters.Add("@extn", SqlDbType.Char, 10).Value = extn;
                         cmd.Parameters.AddWithValue("@username", uName);
@@ -110,6 +98,9 @@ namespace NeedyNest
         private void Pdf_Load(object sender, EventArgs e)
         {
             LoadData();
+            UploadFormLayout.Apply(this, "Distribution Materials",
+                textBox1, button_browse, button_save,
+                dataGridView1, button_open, button_refresh, button_back);
         }
 
         private void LoadData()
@@ -160,7 +151,8 @@ namespace NeedyNest
                             string name = reader["FileName"].ToString();
                             string extn = reader["extension"].ToString();
 
-                            string newFileName = $"{Path.GetFileNameWithoutExtension(name)}_{DateTime.Now:yyyyMMddHHmmss}{extn}";
+                            string newFileName = Path.Combine(Path.GetTempPath(),
+                                $"{Path.GetFileNameWithoutExtension(name)}_{DateTime.Now:yyyyMMddHHmmss}{extn.Trim()}");
                             File.WriteAllBytes(newFileName, data);
                             System.Diagnostics.Process.Start(newFileName);
                         }

@@ -27,6 +27,9 @@ namespace NeedyNest
         private void Form_Book_Load(object sender, EventArgs e)
         {
             LoadData();  // Load books when the form loads
+            UploadFormLayout.Apply(this, "Upload Course Materials",
+                textBox1, button_browse, button_save,
+                dataGridView1, button_OpenSlide, button_Refresh, button1);
         }
 
 
@@ -69,7 +72,8 @@ namespace NeedyNest
                             string name = reader["FileName"].ToString();
                             string extn = reader["extension"].ToString();
 
-                            string newFileName = $"{Path.GetFileNameWithoutExtension(name)}_{DateTime.Now:yyyyMMddHHmmss}{extn}";
+                            string newFileName = Path.Combine(Path.GetTempPath(),
+                                $"{Path.GetFileNameWithoutExtension(name)}_{DateTime.Now:yyyyMMddHHmmss}{extn.Trim()}");
                             File.WriteAllBytes(newFileName, data);
                             System.Diagnostics.Process.Start(newFileName);
                         }
@@ -122,7 +126,7 @@ namespace NeedyNest
                 using (SqlConnection cn = GetConnection())
                 using (SqlCommand cmd = new SqlCommand(query, cn))
                 {
-                    cmd.Parameters.Add("@data", SqlDbType.VarBinary).Value = buffer;
+                    cmd.Parameters.Add("@data", SqlDbType.VarBinary, -1).Value = buffer; // -1 = MAX (large files)
                     cmd.Parameters.Add("@name", SqlDbType.VarChar).Value = name;
                     cmd.Parameters.Add("@extn", SqlDbType.Char, 10).Value = extn;
 

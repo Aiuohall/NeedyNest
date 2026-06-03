@@ -171,7 +171,7 @@ namespace NeedyNest.UI
         }
 
         // ── Button styling with hover effects ────────────────────────────────────
-        private static void StyleButton(Button btn)
+        public static void StyleButton(Button btn)
         {
             btn.FlatStyle   = FlatStyle.Flat;
             btn.FlatAppearance.BorderSize  = 0;

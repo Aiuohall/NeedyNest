@@ -40,7 +40,7 @@ namespace NeedyNest
             string description = textBox_description.Text.Trim();
             string price = textBoxprice.Text.Trim();
             string materials = filepath.Text.Trim();
-            string role = GetUserRole(uName);  // Fetch role from corrected table
+            string role = string.IsNullOrEmpty(Session.LoggedInRole) ? "Unknown" : Session.LoggedInRole;
 
             if (string.IsNullOrEmpty(courseName) || string.IsNullOrEmpty(price))
             {

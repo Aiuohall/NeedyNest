@@ -72,7 +72,7 @@ namespace NeedyNest
                 {
                     cmd.Parameters.Add("@name", SqlDbType.NVarChar).Value = fileName;
                     cmd.Parameters.Add("@extn", SqlDbType.NVarChar).Value = extension;
-                    cmd.Parameters.Add("@data", SqlDbType.VarBinary).Value = fileData;
+                    cmd.Parameters.Add("@data", SqlDbType.VarBinary, -1).Value = fileData; // -1 = MAX (large files)
 
                     cn.Open();
                     int result = cmd.ExecuteNonQuery();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -13,6 +14,8 @@ namespace NeedyNest
         private string uName;
         private string selectedCourseId;
         private decimal coursePrice;
+        private Panel pnlBkash;   // holds the Bkash fields (shown only when Bkash is picked)
+        private Panel pnlCard;    // holds the Card fields  (shown only when Card is picked)
        
      
 
@@ -21,12 +24,11 @@ namespace NeedyNest
         public PaidCourseDashboard(string uName)
         {
             InitializeComponent();
+            this.uName = uName;          // set BEFORE loading data (was a bug: used uninitialized)
             LoadCourses();
-            this.uName = uName;
             AddOpenButtonColumn();
             InitializePaymentControls();
 
-            
             dataGridView1.CellClick += DataGridView1_CellClick;
         }
         // Add these new methods to the class
@@ -179,10 +181,10 @@ namespace NeedyNest
 
         private void HideAllPaymentFields()
         {
-            expirationdatetime.Visible = cvvtextbox.Visible = entercardinfotextbox.Visible = false;
-            expirationdatelabel.Visible = cvvlabel.Visible = entercardnumberlabel.Visible = false;
-            bkashnuminputtextbox.Visible = bkashnumberinputlabel.Visible = false;
-            bkashpininputtextbox.Visible = label2.Visible = false;
+            // Null-guarded: this is called from the constructor before the panels
+            // are built in BuildPaymentLayout().
+            if (pnlBkash != null) pnlBkash.Visible = false;
+            if (pnlCard != null) pnlCard.Visible = false;
         }
 
         private void UpdatePaymentFieldsVisibility()
@@ -194,20 +196,12 @@ namespace NeedyNest
 
         private void ShowBkashFields()
         {
-            bkashnuminputtextbox.Visible = true;
-            bkashnumberinputlabel.Visible = true;
-            bkashpininputtextbox.Visible = true;
-            label2.Visible = true;
+            if (pnlBkash != null) pnlBkash.Visible = true;
         }
 
         private void ShowCardFields()
         {
-            entercardinfotextbox.Visible = true;
-            entercardnumberlabel.Visible = true;
-            expirationdatetime.Visible = true;
-            expirationdatelabel.Visible = true;
-            cvvtextbox.Visible = true;
-            cvvlabel.Visible = true;
+            if (pnlCard != null) pnlCard.Visible = true;
         }
 
         private void button_Enroll_Click(object sender, EventArgs e)
@@ -415,6 +409,18 @@ namespace NeedyNest
                     }
                 }
             }
+            catch (SqlException ex) when (ex.Number == 2627 || ex.Number == 2601)
+            {
+                // PK_Enrolled is defined on [course id] alone, so a course can only
+                // ever hold ONE enrollment row. Explain it instead of a raw SQL error.
+                MessageBox.Show(
+                    "This course is already enrolled and cannot accept another enrollment.\n\n" +
+                    "Admin note: the 'Enrolled' table's primary key is on the course id only, " +
+                    "which limits each course to a single enrollment. Run the script " +
+                    "DB\\FixEnrolledPrimaryKey.sql once to allow multiple members per course.",
+                    "Already Enrolled", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                ResetUI();
+            }
             catch (Exception ex)
             {
                 MessageBox.Show("Error processing enrollment: " + ex.Message, "Database Error",
@@ -450,7 +456,143 @@ namespace NeedyNest
 
         private void PaidCourseDashboard_Load(object sender, EventArgs e)
         {
+            BuildPaymentLayout();
+        }
 
+        /// <summary>
+        /// Reorganizes the previously scattered payment controls (which sat off to
+        /// the far right at coordinates like X≈1075 and were effectively invisible)
+        /// into a clean, contained "Payment Details" card with a prominent Pay Now
+        /// button.
+        /// </summary>
+        private void BuildPaymentLayout()
+        {
+            SuspendLayout();
+
+            this.Text        = "Paid Courses";
+            this.ClientSize  = new Size(1040, 680);
+            this.MinimumSize = new Size(900, 640);
+            this.BackColor   = ThemeManager.BackgroundColor;
+            this.Padding     = new Padding(0);
+
+            // Remove the base status strip so it can't overlap the payment card.
+            for (int i = Controls.Count - 1; i >= 0; i--)
+                if (Controls[i] is StatusStrip) Controls.RemoveAt(i);
+
+            // ── Header ───────────────────────────────────────────────────────────
+            var header = new Panel { Dock = DockStyle.Top, Height = 64, BackColor = ThemeManager.PrimaryColor };
+            header.Controls.Add(new Label
+            {
+                Text = "Paid Courses",
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 15F, FontStyle.Bold),
+                AutoSize = true,
+                Location = new Point(24, 16)
+            });
+            Controls.Add(header);
+
+            // ── Top toolbar (Back / Open) ────────────────────────────────────────
+            button_Back.SetBounds(24, 78, 120, 38);
+            button_open.SetBounds(156, 78, 120, 38);
+            button_Enroll.SetBounds(288, 78, 120, 38);
+            button_Back.Anchor   = AnchorStyles.Top | AnchorStyles.Left;
+            button_open.Anchor   = AnchorStyles.Top | AnchorStyles.Left;
+            button_Enroll.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+
+            // ── Course grid ──────────────────────────────────────────────────────
+            dataGridView1.SetBounds(24, 128, ClientSize.Width - 48, 300);
+            dataGridView1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
+            // ── Payment card ─────────────────────────────────────────────────────
+            var pay = new Panel
+            {
+                Name      = "pnlPaymentCard",
+                BackColor = ThemeManager.SurfaceColor,
+                BorderStyle = BorderStyle.FixedSingle
+            };
+            pay.SetBounds(24, 444, ClientSize.Width - 48, 200);
+            pay.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            Controls.Add(pay);
+
+            var payTitle = new Label
+            {
+                Text = "Payment Details",
+                ForeColor = ThemeManager.PrimaryColor,
+                Font = new Font("Segoe UI", 12F, FontStyle.Bold),
+                BackColor = Color.Transparent,
+                AutoSize = true,
+                Location = new Point(18, 12)
+            };
+            var payHint = new Label
+            {
+                Text = "Choose a payment method to continue",
+                ForeColor = ThemeManager.SubtleText,
+                Font = new Font("Segoe UI", 8.5F, FontStyle.Regular),
+                BackColor = Color.Transparent,
+                AutoSize = true,
+                Location = new Point(20, 38)
+            };
+            pay.Controls.Add(payTitle);
+            pay.Controls.Add(payHint);
+
+            // helper: move an existing control into a new parent at a local position
+            void MoveTo(Control c, Control parent, int x, int y)
+            {
+                if (c == null) return;
+                Controls.Remove(c);
+                c.Location = new Point(x, y);
+                c.BackColor = Color.Transparent;
+                parent.Controls.Add(c);
+            }
+
+            // Method selection (styled like pill toggles)
+            Controls.Remove(bkash);
+            Controls.Remove(card);
+            bkash.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            card.Font  = new Font("Segoe UI", 10F, FontStyle.Bold);
+            bkash.Location = new Point(22, 64);
+            card.Location  = new Point(140, 64);
+            pay.Controls.Add(bkash);
+            pay.Controls.Add(card);
+
+            // ── Bkash sub-panel ──────────────────────────────────────────────────
+            pnlBkash = new Panel { BackColor = Color.FromArgb(247, 250, 252) };
+            pnlBkash.SetBounds(18, 100, 560, 86);
+            pnlBkash.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            pay.Controls.Add(pnlBkash);
+            MoveTo(bkashnumberinputlabel, pnlBkash, 14, 10);
+            MoveTo(bkashnuminputtextbox, pnlBkash, 14, 36); bkashnuminputtextbox.Width = 220;
+            MoveTo(label2, pnlBkash, 290, 10);
+            MoveTo(bkashpininputtextbox, pnlBkash, 290, 36); bkashpininputtextbox.Width = 170;
+            pnlBkash.Visible = false;
+
+            // ── Card sub-panel (occupies the same spot; only one ever visible) ────
+            pnlCard = new Panel { BackColor = Color.FromArgb(247, 250, 252) };
+            pnlCard.SetBounds(18, 100, 720, 86);
+            pnlCard.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            pay.Controls.Add(pnlCard);
+            MoveTo(entercardnumberlabel, pnlCard, 14, 10);
+            MoveTo(entercardinfotextbox, pnlCard, 14, 36); entercardinfotextbox.Width = 250;
+            MoveTo(expirationdatelabel, pnlCard, 300, 10);
+            MoveTo(expirationdatetime, pnlCard, 300, 36); expirationdatetime.Width = 180;
+            MoveTo(cvvlabel, pnlCard, 510, 10);
+            MoveTo(cvvtextbox, pnlCard, 510, 36); cvvtextbox.Width = 120;
+            pnlCard.Visible = false;
+
+            // ── Prominent Pay Now button, pinned bottom-right of the card ─────────
+            Controls.Remove(paynowbutton);
+            paynowbutton.Size = new Size(180, 50);
+            paynowbutton.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            paynowbutton.Text = "Pay Now";
+            paynowbutton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            pay.Controls.Add(paynowbutton);
+            void PlacePayNow() =>
+                paynowbutton.Location = new Point(pay.Width - paynowbutton.Width - 24, pay.Height - paynowbutton.Height - 18);
+            pay.Resize += (s, e) => PlacePayNow();
+            PlacePayNow();
+
+            ResumeLayout(true);
         }
 
         private void button_open_Click(object sender, EventArgs e)

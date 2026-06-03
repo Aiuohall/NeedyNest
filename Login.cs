@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -60,6 +61,8 @@ namespace NeedyNest
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            ApplyLoginDesign();
+
             // Silently probe the database. If it's offline we don't nag the user
             // with a popup — the built-in test accounts still allow login.
             try
@@ -74,6 +77,102 @@ namespace NeedyNest
             {
                 lblTestHint.Visible = true; // DB is down; show the test-account hint
             }
+        }
+
+        /// <summary>
+        /// Rebuilds the login screen into a professional two-panel layout: a
+        /// branded gradient panel on the left and a clean sign-in card on the right.
+        /// Reuses the existing controls so all click handlers stay wired.
+        /// </summary>
+        private void ApplyLoginDesign()
+        {
+            SuspendLayout();
+
+            this.Text            = "NeedyNest — Login";
+            this.FormBorderStyle = FormBorderStyle.FixedSingle; // login is a fixed card
+            this.MaximizeBox     = false;
+            this.ClientSize      = new Size(900, 560);
+            this.StartPosition   = FormStartPosition.CenterScreen;
+            this.BackColor       = Color.White;
+            this.Padding         = new Padding(0);
+            this.AcceptButton    = loginbutton; // Enter submits
+
+            // ── Branded left panel with a vertical gradient ──────────────────────
+            var brand = new Panel { Dock = DockStyle.Left, Width = 340 };
+            brand.Paint += (s, e) =>
+            {
+                using (var brush = new LinearGradientBrush(brand.ClientRectangle,
+                           ThemeManager.PrimaryColor, ThemeManager.HoverColor, 60f))
+                    e.Graphics.FillRectangle(brush, brand.ClientRectangle);
+            };
+            brand.Controls.Add(new Label
+            {
+                Text = "NeedyNest",
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 28F, FontStyle.Bold),
+                AutoSize = true,
+                BackColor = Color.Transparent,
+                Location = new Point(34, 150)
+            });
+            brand.Controls.Add(new Label
+            {
+                Text = "Community Resource\n& Course Management",
+                ForeColor = Color.FromArgb(206, 231, 242),
+                Font = new Font("Segoe UI", 12F, FontStyle.Regular),
+                AutoSize = true,
+                BackColor = Color.Transparent,
+                Location = new Point(36, 215)
+            });
+            brand.Controls.Add(new Label
+            {
+                Text = "Sharing resources. Empowering communities.",
+                ForeColor = Color.FromArgb(150, 195, 215),
+                Font = new Font("Segoe UI", 9F, FontStyle.Italic),
+                AutoSize = true,
+                BackColor = Color.Transparent,
+                Location = new Point(36, 300)
+            });
+            Controls.Add(brand);
+            brand.BringToFront();
+
+            // ── Right-hand sign-in card (reposition existing controls) ───────────
+            int left = 390;
+
+            label1.Font      = new Font("Segoe UI", 20F, FontStyle.Bold);
+            label1.ForeColor = ThemeManager.PrimaryColor;
+            label1.AutoSize  = true;
+            label1.Location  = new Point(left, 70);
+            label1.Text      = "Welcome Back";
+
+            usernamelabel.Font     = new Font("Segoe UI", 10F, FontStyle.Bold);
+            usernamelabel.ForeColor = ThemeManager.ForegroundColor;
+            usernamelabel.AutoSize = true;
+            usernamelabel.Location = new Point(left, 160);
+            usernamelabel.Text     = "Username";
+
+            textBox1.Font     = new Font("Segoe UI", 12F);
+            textBox1.SetBounds(left, 186, 400, 30);
+
+            passwordlabel.Font     = new Font("Segoe UI", 10F, FontStyle.Bold);
+            passwordlabel.ForeColor = ThemeManager.ForegroundColor;
+            passwordlabel.AutoSize = true;
+            passwordlabel.Location = new Point(left, 240);
+            passwordlabel.Text     = "Password";
+
+            textBox2.Font     = new Font("Segoe UI", 12F);
+            textBox2.UseSystemPasswordChar = true;
+            textBox2.SetBounds(left, 266, 400, 30);
+
+            loginbutton.SetBounds(left, 330, 190, 48);
+            loginbutton.Text = "Login";
+            signupbutton.SetBounds(left + 210, 330, 190, 48);
+            signupbutton.Text = "Sign Up";
+
+            exitbutton.SetBounds(left + 300, 400, 100, 38);
+            exitbutton.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            exitbutton.Text = "Exit";
+
+            ResumeLayout(true);
         }
 
         private void loginbutton_Click(object sender, EventArgs e)

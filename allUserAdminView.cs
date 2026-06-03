@@ -68,22 +68,30 @@ namespace NeedyNest
                 Location = new Point(3, 5)
             };
 
+            // Only PENDING members (status 0) can be approved. Approved/rejected
+            // members just show their status — no clickable approve link.
+            bool isPending = status == "0";
+
             Label manageLabel = new Label
             {
-                Text = "Manage User",
+                Text = isPending ? "Approve / Manage" : "—",
                 Font = new Font("Sans Serif Collection", 11, FontStyle.Bold),
-                Location = new Point(340, 5),
+                Location = new Point(330, 5),
                 AutoSize = false,
-                Size = new Size(100, 29),
-                ForeColor = Color.Green
+                Size = new Size(140, 29),
+                ForeColor = isPending ? Color.SeaGreen : Color.Silver,
+                Cursor = isPending ? Cursors.Hand : Cursors.Default
             };
 
-            manageLabel.Click += (sender, e) => {
-                UserApproval m1 = new UserApproval(userName);
-                this.Hide();
-                m1.StartPosition = FormStartPosition.CenterParent;
-                m1.ShowDialog();
-            };
+            if (isPending)
+            {
+                manageLabel.Click += (sender, e) => {
+                    UserApproval m1 = new UserApproval(userName);
+                    this.Hide();
+                    m1.StartPosition = FormStartPosition.CenterParent;
+                    m1.ShowDialog();
+                };
+            }
 
             Label usernameLabel = new Label
             {
@@ -95,14 +103,23 @@ namespace NeedyNest
                 ForeColor = Color.DarkBlue
             };
 
+            string statusText;
+            Color statusColor;
+            switch (status)
+            {
+                case "1": statusText = "Approved"; statusColor = Color.SeaGreen; break;
+                case "2": statusText = "Rejected"; statusColor = Color.Firebrick; break;
+                default:  statusText = "Pending";  statusColor = Color.DarkOrange; break;
+            }
+
             Label statusLabel = new Label
             {
-                Text = status,
+                Text = statusText,
                 Font = new Font("Sans Serif Collection", 11, FontStyle.Bold),
                 Location = new Point(650, 5),
                 AutoSize = false,
-                Size = new Size(70, 25),
-                ForeColor = Color.Peru
+                Size = new Size(90, 25),
+                ForeColor = statusColor
             };
 
             everyuser.Controls.Add(nameLabel);
