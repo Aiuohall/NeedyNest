@@ -22,7 +22,14 @@ namespace NeedyNest
 
         private void admindashboardform_Load(object sender, EventArgs e)
         {
-
+            DashboardLayout.Apply(
+                this,
+                "Admin Dashboard",
+                uName,
+                new[] { manageruserbutton, managercatagoriesbutton, Addpaidcoursebutton,
+                        button_delete, viewpaymentbutton, viewheartfulsharingbutton },
+                button_logout,
+                new Control[] { welcomeadminform, logoutbutton });
         }
 
         private void button3_Click(object sender, EventArgs e)

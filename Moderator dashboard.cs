@@ -50,7 +50,13 @@ namespace NeedyNest
 
         private void moderatordash_Load(object sender, EventArgs e)
         {
-
+            DashboardLayout.Apply(
+                this,
+                "Moderator Dashboard",
+                uName,
+                new[] { button_managecatagory, button_addbooks, AddPaidcourse, Deletepaidcoursebutton },
+                logoutmoderatorbutton,
+                new Control[] { welcomemoderatorlabel });
         }
 
         private void logoutmoderatorbutton_Click(object sender, EventArgs e)

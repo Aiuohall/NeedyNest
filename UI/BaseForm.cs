@@ -14,8 +14,8 @@ namespace NeedyNest.UI
             BackColor           = ThemeManager.BackgroundColor;
             ForeColor           = ThemeManager.ForegroundColor;
             StartPosition       = FormStartPosition.CenterScreen;
-            FormBorderStyle     = FormBorderStyle.FixedSingle;
-            MaximizeBox         = false;
+            FormBorderStyle     = FormBorderStyle.Sizable; // allow resize + maximize
+            MaximizeBox         = true;
             AutoScaleMode       = AutoScaleMode.Font;
 
             Load += BaseForm_Load;

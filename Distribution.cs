@@ -184,45 +184,8 @@ namespace NeedyNest
 
         private void button_back_Click(object sender, EventArgs e)
         {
-            try
-            {
-                string role = GetUserRole(uName);
-
-                if (string.IsNullOrEmpty(role))
-                {
-                    MessageBox.Show("Error: User role not found. Redirecting to the login page.", "Role Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    new Login().Show(); // Redirect to login if the role is not found
-                    this.Close();
-                    return;
-                }
-
-                // Navigate based on role
-                Form dashboard;
-                switch (role.ToLower()) // Convert to lowercase to avoid case sensitivity issues
-                {
-                    case "admin":
-                        dashboard = new admindashboardform(uName);
-                        break;
-                    case "moderator":
-                        dashboard = new moderatordash(uName);
-                        break;
-                    case "user":
-                        dashboard = new userdashboard(uName);
-                        break;
-                    default:
-                        MessageBox.Show("Error: Unrecognized role. Redirecting to login.", "Role Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        new Login().Show();
-                        this.Close();
-                        return;
-                }
-
-                dashboard.Show();
-                this.Hide();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("An error occurred while navigating: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            // Return to the dashboard of whoever is logged in (admin stays admin).
+            NavigationHelper.GoToDashboard(this, uName);
         }
         private string GetUserRole(string username)
         {

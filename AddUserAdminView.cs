@@ -22,7 +22,13 @@ namespace NeedyNest
 
         private void manageuserdashboardform_Load(object sender, EventArgs e)
         {
-
+            DashboardLayout.Apply(
+                this,
+                "Manage Users",
+                uName,
+                new[] { alluser, button3, button4, button5 },
+                button6,
+                null);
         }
 
         private void button6_Click(object sender, EventArgs e)

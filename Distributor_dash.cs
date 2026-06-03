@@ -26,7 +26,13 @@ namespace NeedyNest
 
         private void heartfulsharingform_Load(object sender, EventArgs e)
         {
-
+            DashboardLayout.Apply(
+                this,
+                "Distributor Dashboard",
+                uName,
+                new[] { button1 },
+                button3,
+                null);
         }
 
         private void button3_Click(object sender, EventArgs e)

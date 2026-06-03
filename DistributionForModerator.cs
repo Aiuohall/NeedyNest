@@ -177,36 +177,8 @@ namespace NeedyNest
 
         private void button_back_Click(object sender, EventArgs e)
         {
-            try
-            {
-                string role = GetUserRole(uName);
-
-                if (string.IsNullOrEmpty(role))
-                {
-                    MessageBox.Show("User role not found. Redirecting to user dashboard.");
-                    new userdashboard(uName).Show(); // Default to user dashboard
-                }
-                else if (role.Equals("admin", StringComparison.OrdinalIgnoreCase))
-                {
-                    new admindashboardform(uName).Show();
-                }
-                else if (role.Equals("moderator", StringComparison.OrdinalIgnoreCase))
-                {
-                    new moderatordash(uName).Show();
-
-
-                }
-                else
-                {
-                    new userdashboard(uName).Show(); // Default case for regular users
-                }
-
-                this.Hide();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error: " + ex.Message);
-            }
+            // Return to the dashboard of whoever is logged in (admin stays admin).
+            NavigationHelper.GoToDashboard(this, uName);
         }
         private string GetUserRole(string username)
         {

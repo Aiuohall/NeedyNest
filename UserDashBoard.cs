@@ -67,7 +67,13 @@ namespace NeedyNest
 
         private void userdashboard_Load(object sender, EventArgs e)
         {
-
+            DashboardLayout.Apply(
+                this,
+                "User Dashboard",
+                uName,
+                new[] { button_Needer, button_Distributor, paidcoursebutton, editprofilebutton },
+                logoutbutton,
+                new Control[] { userwelcomelabel });
         }
     }
 }

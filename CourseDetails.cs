@@ -50,16 +50,8 @@ namespace NeedyNest
 
         private void button_back_Click(object sender, EventArgs e)
         {
-            string userRole = GetUserRole(uName);
-            if (userRole == "admin")
-            {
-                new admindashboardform(uName).Show();
-            }
-            else
-            {
-                new moderatordash(uName).Show();
-            }
-            this.Hide();
+            // Return to the dashboard of whoever is logged in (admin stays admin).
+            NavigationHelper.GoToDashboard(this, uName);
         }
 
         private string GetUserRole(string username)
