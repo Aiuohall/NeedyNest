@@ -16,14 +16,14 @@ namespace NeedyNest
     {
 
         private string currentUsername;
-        private string connectionString= @"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;";
+        private string connectionString= DbHelper.ConnectionString;
 
         public EditProfiledashboard(String username)
         {
             InitializeComponent();
             currentUsername = username;
             LoadDetails();
-
+            this.Load += (s, e) => PageChrome.Apply(this, "Edit Profile");
         }
 
         private void LoadDetails()
@@ -66,9 +66,8 @@ namespace NeedyNest
 
         private void button1_back_Click(object sender, EventArgs e)
         {
-            userdashboard userdashboard = new userdashboard(Name);
+            new userdashboard(currentUsername).Show();
             this.Hide();
-            userdashboard.Show();
         }
 
         private void button_update_Click(object sender, EventArgs e)

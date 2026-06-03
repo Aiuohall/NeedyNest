@@ -13,7 +13,7 @@ namespace NeedyNest
 {
     public partial class CourseDetails : BaseForm
     {
-        private string connectionString = @"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;";
+        private string connectionString = DbHelper.ConnectionString;
         private string uName;
 
         public CourseDetails(string uName)
@@ -21,6 +21,7 @@ namespace NeedyNest
             InitializeComponent();
             this.uName = uName;
             LoadCourses();
+            this.Load += (s, e) => PageChrome.Apply(this, "Course Details");
         }
         private void LoadCourses()
         {
@@ -50,16 +51,8 @@ namespace NeedyNest
 
         private void button_back_Click(object sender, EventArgs e)
         {
-            string userRole = GetUserRole(uName);
-            if (userRole == "admin")
-            {
-                new admindashboardform(uName).Show();
-            }
-            else
-            {
-                new moderatordash(uName).Show();
-            }
-            this.Hide();
+            // Return to the dashboard of whoever is logged in (admin stays admin).
+            NavigationHelper.GoToDashboard(this, uName);
         }
 
         private string GetUserRole(string username)

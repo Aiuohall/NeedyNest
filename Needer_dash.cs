@@ -35,12 +35,14 @@ namespace NeedyNest
 
         private void button_Slides_Click(object sender, EventArgs e)
         {
-
+            new Distribution(uName).Show();
+            this.Hide();
         }
 
         private void Needer_DashBoard_Load(object sender, EventArgs e)
         {
-
+            DashboardLayout.Apply(this, "Needer Dashboard", uName,
+                new[] { button_Books }, button_back, null);
         }
     }
 }

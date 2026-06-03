@@ -14,7 +14,7 @@ namespace NeedyNest
     public partial class Form_ReceiveBooks : BaseForm
     {
         private string uName;
-        private const string ConnectionString = @"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;";
+        private static string ConnectionString => DbHelper.ConnectionString;
 
         private Timer searchTimer;
         private Label lblNoMatches;
@@ -37,6 +37,7 @@ namespace NeedyNest
             };
             this.Controls.Add(lblNoMatches);
             lblNoMatches.BringToFront();
+            this.Load += (s, e) => PageChrome.Apply(this, "Receive Books");
         }
 
         private void SearchTimer_Tick(object sender, EventArgs e)

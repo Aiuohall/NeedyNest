@@ -23,6 +23,7 @@ namespace NeedyNest
             panel1.Visible = true;  //panel hide
             LoadSlides();  //load stored data in gridview
             this.uName = uName;
+            this.Load += (s, e) => PageChrome.Apply(this, "Add Course Slides");
         }
 
 
@@ -72,7 +73,7 @@ namespace NeedyNest
                 {
                     cmd.Parameters.Add("@name", SqlDbType.NVarChar).Value = fileName;
                     cmd.Parameters.Add("@extn", SqlDbType.NVarChar).Value = extension;
-                    cmd.Parameters.Add("@data", SqlDbType.VarBinary).Value = fileData;
+                    cmd.Parameters.Add("@data", SqlDbType.VarBinary, -1).Value = fileData; // -1 = MAX (large files)
 
                     cn.Open();
                     int result = cmd.ExecuteNonQuery();
@@ -91,10 +92,7 @@ namespace NeedyNest
                 MessageBox.Show("Error: " + ex.Message);
             }
         }
-        private SqlConnection GetConnection()
-        {
-            return new SqlConnection(@"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;");
-        }
+        private SqlConnection GetConnection() => DbHelper.GetConnection();
 
         private void heartfulsharingdash_Load(object sender, EventArgs e)
         {

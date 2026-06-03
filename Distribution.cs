@@ -57,28 +57,16 @@ namespace NeedyNest
                 {
                     cn.Open();
 
-                    // Retrieve role from signup table
-                    string role;
-                    using (SqlCommand roleCmd = new SqlCommand(
-                        "SELECT role FROM signup WHERE username = @username", cn))
-                    {
-                        roleCmd.Parameters.AddWithValue("@username", uName);
-                        object result = roleCmd.ExecuteScalar();
-
-                        if (result == null)
-                        {
-                            MessageBox.Show("User role not found in signup table.");
-                            return false;
-                        }
-                        role = result.ToString();
-                    }
+                    // Use the role captured at login (works for every account,
+                    // including ones not present in the signup table).
+                    string role = string.IsNullOrEmpty(Session.LoggedInRole) ? "Unknown" : Session.LoggedInRole;
 
                     // Insert into Distribution table
                     using (SqlCommand cmd = new SqlCommand(
                         "INSERT INTO Distribution (Data, FileName, extension, username, role) " +
                         "VALUES (@data, @name, @extn, @username, @role)", cn))
                     {
-                        cmd.Parameters.Add("@data", SqlDbType.VarBinary).Value = buffer;
+                        cmd.Parameters.Add("@data", SqlDbType.VarBinary, -1).Value = buffer; // -1 = MAX (large files)
                         cmd.Parameters.Add("@name", SqlDbType.VarChar).Value = name;
                         cmd.Parameters.Add("@extn", SqlDbType.Char, 10).Value = extn;
                         cmd.Parameters.AddWithValue("@username", uName);
@@ -96,10 +84,7 @@ namespace NeedyNest
             }
         }
 
-        private SqlConnection GetConnection()
-        {
-            return new SqlConnection(@"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;");
-        }
+        private SqlConnection GetConnection() => DbHelper.GetConnection();
 
         private void button_browse_Click(object sender, EventArgs e)
         {
@@ -113,6 +98,9 @@ namespace NeedyNest
         private void Pdf_Load(object sender, EventArgs e)
         {
             LoadData();
+            UploadFormLayout.Apply(this, "Distribution Materials",
+                textBox1, button_browse, button_save,
+                dataGridView1, button_open, button_refresh, button_back);
         }
 
         private void LoadData()
@@ -163,7 +151,8 @@ namespace NeedyNest
                             string name = reader["FileName"].ToString();
                             string extn = reader["extension"].ToString();
 
-                            string newFileName = $"{Path.GetFileNameWithoutExtension(name)}_{DateTime.Now:yyyyMMddHHmmss}{extn}";
+                            string newFileName = Path.Combine(Path.GetTempPath(),
+                                $"{Path.GetFileNameWithoutExtension(name)}_{DateTime.Now:yyyyMMddHHmmss}{extn.Trim()}");
                             File.WriteAllBytes(newFileName, data);
                             System.Diagnostics.Process.Start(newFileName);
                         }
@@ -187,45 +176,8 @@ namespace NeedyNest
 
         private void button_back_Click(object sender, EventArgs e)
         {
-            try
-            {
-                string role = GetUserRole(uName);
-
-                if (string.IsNullOrEmpty(role))
-                {
-                    MessageBox.Show("Error: User role not found. Redirecting to the login page.", "Role Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    new Login().Show(); // Redirect to login if the role is not found
-                    this.Close();
-                    return;
-                }
-
-                // Navigate based on role
-                Form dashboard;
-                switch (role.ToLower()) // Convert to lowercase to avoid case sensitivity issues
-                {
-                    case "admin":
-                        dashboard = new admindashboardform(uName);
-                        break;
-                    case "moderator":
-                        dashboard = new moderatordash(uName);
-                        break;
-                    case "user":
-                        dashboard = new userdashboard(uName);
-                        break;
-                    default:
-                        MessageBox.Show("Error: Unrecognized role. Redirecting to login.", "Role Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        new Login().Show();
-                        this.Close();
-                        return;
-                }
-
-                dashboard.Show();
-                this.Hide();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("An error occurred while navigating: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            // Return to the dashboard of whoever is logged in (admin stays admin).
+            NavigationHelper.GoToDashboard(this, uName);
         }
         private string GetUserRole(string username)
         {

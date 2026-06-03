@@ -14,7 +14,7 @@ namespace NeedyNest
     public partial class Deleteuser : BaseForm
     {
         string uName;
-        private SqlConnection con = new SqlConnection(@"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;");
+        private SqlConnection con = DbHelper.GetConnection();
         private ToolTip toolTip = new ToolTip();
 
 
@@ -24,6 +24,7 @@ namespace NeedyNest
             textBox_Search.TextChanged += SearchTextBox_TextChanged;
             LoadAllUsers(); //cann load all user initially
             this.uName = uName;
+            this.Load += (s, e) => PageChrome.Apply(this, "Delete User");
         }
 
         private void LoadAllUsers()

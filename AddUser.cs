@@ -16,12 +16,13 @@ namespace NeedyNest
     {
         string uName;
 
-        private SqlConnection con = new SqlConnection(@"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;");
+        private SqlConnection con = DbHelper.GetConnection();
 
         public AddUser(string uName)
         {
             this.uName= uName;
             InitializeComponent();
+            this.Load += (s, e) => PageChrome.Apply(this, "Add User");
         }
 
         private void uninametextbox_TextChanged(object sender, EventArgs e)

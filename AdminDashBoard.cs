@@ -22,7 +22,14 @@ namespace NeedyNest
 
         private void admindashboardform_Load(object sender, EventArgs e)
         {
-
+            DashboardLayout.Apply(
+                this,
+                "Admin Dashboard",
+                uName,
+                new[] { manageruserbutton, managercatagoriesbutton, Addpaidcoursebutton,
+                        button_delete, viewpaymentbutton, viewheartfulsharingbutton },
+                button_logout,
+                new Control[] { welcomeadminform, logoutbutton });
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -52,39 +59,24 @@ namespace NeedyNest
         private void logoutbutton_Click(object sender, EventArgs e)
         {
             DialogResult result = MessageBox.Show("Want to Log Out?", "Log out Confirmation",
-                              MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (result == DialogResult.Yes)
             {
-                Login form1 = new Login();
+                Session.Clear();
+                new Login().Show();
                 this.Hide();
-                form1.Show();
             }
         }
 
         private void button_logout_Click(object sender, EventArgs e)
         {
-            DialogResult result = MessageBox.Show(
-        "Do you want to logout?",
-        "Confirm Logout",
-        MessageBoxButtons.YesNoCancel,
-        MessageBoxIcon.Question
-    );
-
+            DialogResult result = MessageBox.Show("Do you want to logout?", "Confirm Logout",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (result == DialogResult.Yes)
             {
-                // User confirmed logout, redirect to login
+                Session.Clear();
                 new Login().Show();
-                this.Close(); // Closes the current form instead of hiding it to free resources
-            }
-            else if (result == DialogResult.No)
-            {
-                // User chose not to logout, do nothing
-                return;
-            }
-            else if (result == DialogResult.Cancel)
-            {
-                // If cancel is selected, do nothing
-                return;
+                this.Close();
             }
         }
 

@@ -5,9 +5,16 @@ using System.Text;
 
 namespace NeedyNest
 {
-    public static class Session  // Static class to store global data
+    public static class Session
     {
-        public static string LoggedInUsername { get; set; } // Store the username globally
+        public static string LoggedInUsername { get; set; }
+        public static string LoggedInRole { get; set; }
+
+        public static void Clear()
+        {
+            LoggedInUsername = null;
+            LoggedInRole = null;
+        }
     }
 
 }

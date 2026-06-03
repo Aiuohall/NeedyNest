@@ -9,13 +9,14 @@ namespace NeedyNest
     public partial class payment_history : BaseForm
     {
         private string uName;
-        private string connectionString = @"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;";
+        private string connectionString = DbHelper.ConnectionString;
 
         public payment_history(string uName)
         {
             InitializeComponent();
             this.uName = uName;
             this.Load += payment_history_Load;
+            this.Load += (s, e) => PageChrome.Apply(this, "Payment History");
         }
 
         private void payment_history_Load(object sender, EventArgs e)

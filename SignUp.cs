@@ -8,7 +8,7 @@ namespace NeedyNest
     public partial class signupform : BaseForm
     {
         
-        private SqlConnection con = new SqlConnection(@"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;");
+        private readonly SqlConnection con = DbHelper.GetConnection();
 
         public signupform()
         {
@@ -34,7 +34,7 @@ namespace NeedyNest
             string query = "SELECT COUNT(*) FROM [NeedyNest].[dbo].[signup] WHERE [username] = @Username";
 
             // Assuming you have a SqlConnection setup
-            using (SqlConnection connection = new SqlConnection(@"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;"))
+            using (SqlConnection connection = DbHelper.GetConnection())
             {
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
@@ -56,8 +56,8 @@ namespace NeedyNest
                 case "Admin":
                     rolePrefix = "ad-";
                     break;
-                case "Mod":
-                    rolePrefix = "mod-";  // Ensure "mod-" is applied correctly
+                case "Moderator":
+                    rolePrefix = "mod-";
                     break;
                 case "User":
                     rolePrefix = "us-";

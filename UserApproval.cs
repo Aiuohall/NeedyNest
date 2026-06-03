@@ -9,13 +9,14 @@ namespace NeedyNest
     {
         
         private readonly string _userName;
-        private readonly SqlConnection con = new SqlConnection(@"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;");
+        private readonly SqlConnection con = DbHelper.GetConnection();
 
         public UserApproval(string userName)
         {
             InitializeComponent();
             _userName = userName; // Store the username
             this.Load += UserApproval_Load;
+            this.Load += (s, e) => PageChrome.Apply(this, "Member Approval");
             // Disable editing of fields (if needed)
             //SetControlsReadOnly();
         }

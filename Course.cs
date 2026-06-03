@@ -8,12 +8,13 @@ namespace NeedyNest
     public partial class Course : BaseForm
     {
         private string uName;
-        private string connectionString = @"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;";
+        private readonly string connectionString = DbHelper.ConnectionString;
 
         public Course(string uName)
         {
             this.uName = uName;
             InitializeComponent();
+            this.Load += (s, e) => PageChrome.Apply(this, "Add Paid Course");
         }
 
         private void button_browse_Click_1(object sender, EventArgs e)
@@ -40,7 +41,7 @@ namespace NeedyNest
             string description = textBox_description.Text.Trim();
             string price = textBoxprice.Text.Trim();
             string materials = filepath.Text.Trim();
-            string role = GetUserRole(uName);  // Fetch role from corrected table
+            string role = string.IsNullOrEmpty(Session.LoggedInRole) ? "Unknown" : Session.LoggedInRole;
 
             if (string.IsNullOrEmpty(courseName) || string.IsNullOrEmpty(price))
             {
@@ -48,7 +49,7 @@ namespace NeedyNest
                 return;
             }
 
-            string connectionString = @"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;";
+            string connectionString = DbHelper.ConnectionString;
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
@@ -78,16 +79,8 @@ namespace NeedyNest
 
         private void button_Back_Click(object sender, EventArgs e)
         {
-            string userRole = GetUserRole(uName);
-            if (userRole == "admin")
-            {
-                new admindashboardform(uName).Show();
-            }
-            else
-            {
-                new moderatordash(uName).Show();
-            }
-            this.Hide();
+            // Return to the dashboard of whoever is logged in (admin stays admin).
+            NavigationHelper.GoToDashboard(this, uName);
         }
 
         private string GetUserRole(string username)
@@ -95,7 +88,7 @@ namespace NeedyNest
             string role = "moderator";  // Default role if not found
             try
             {
-                using (SqlConnection conn = new SqlConnection(@"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;"))
+                using (SqlConnection conn = new SqlConnection(DbHelper.ConnectionString))
                 {
                     conn.Open();
                     string query = "SELECT role FROM [dbo].[signup] WHERE username = @username";  // Use the correct table
