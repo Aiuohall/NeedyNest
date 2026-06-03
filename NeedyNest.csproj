@@ -142,6 +142,7 @@
     <Compile Include="PromoteModerator.Designer.cs">
       <DependentUpon>PromoteModerator.cs</DependentUpon>
     </Compile>
+    <Compile Include="AdminAnalytics.cs" />
     <Compile Include="ApproveMembers.cs">
       <SubType>Form</SubType>
     </Compile>

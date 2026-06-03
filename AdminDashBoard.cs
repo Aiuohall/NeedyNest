@@ -29,7 +29,11 @@ namespace NeedyNest
                 new[] { manageruserbutton, managercatagoriesbutton, Addpaidcoursebutton,
                         button_delete, viewpaymentbutton, viewheartfulsharingbutton },
                 button_logout,
-                new Control[] { welcomeadminform, logoutbutton });
+                new Control[] { welcomeadminform, logoutbutton },
+                badgeButton: null,
+                badgeCount: 0,
+                topContent: AdminAnalytics.Build(),
+                topContentHeight: AdminAnalytics.PanelHeight);
         }
 
         private void button3_Click(object sender, EventArgs e)
