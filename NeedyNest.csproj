@@ -148,6 +148,7 @@
     </Compile>
     <Compile Include="DbHelper.cs" />
     <Compile Include="NavigationHelper.cs" />
+    <Compile Include="PasswordHelper.cs" />
     <Compile Include="Session.cs" />
     <Compile Include="SignUp.cs">
       <SubType>Form</SubType>

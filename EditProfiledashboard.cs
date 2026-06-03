@@ -43,7 +43,9 @@ namespace NeedyNest
                         if (reader.Read())
                         {
                             txtUsername.Text = reader["username"].ToString();
-                            txtPassword.Text = reader["password"].ToString();
+                            // Passwords are hashed and cannot be shown. Leave blank;
+                            // the user only types here to CHANGE it.
+                            txtPassword.Text = "";
                             txtContact.Text = reader["contact_number"].ToString();
                             txtUni.Text = reader["uni_name"].ToString();
                         }
@@ -77,11 +79,15 @@ namespace NeedyNest
             string newContact = txtContact.Text.Trim();
             string newUni = txtUni.Text.Trim();
 
-            if (string.IsNullOrEmpty(newUsername) || string.IsNullOrEmpty(newPassword))
+            if (string.IsNullOrEmpty(newUsername))
             {
-                MessageBox.Show("Username and Password are required!", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Username is required!", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
+
+            // Password is optional — only changed when the user types a new one.
+            bool changePassword = !string.IsNullOrEmpty(newPassword);
+            string newHash = changePassword ? PasswordHelper.Hash(newPassword) : null;
 
             try
             {
@@ -92,18 +98,15 @@ namespace NeedyNest
                     {
                         try
                         {
-                            // Update signup table
-                            string updateSignup = @"UPDATE signup SET 
-                                                  username = @newUsername,
-                                                  password = @newPassword,
-                                                  contact_number = @contact,
-                                                  uni_name = @uni
-                                                  WHERE username = @oldUsername";
+                            // Update signup table (password only if a new one was entered)
+                            string updateSignup = changePassword
+                                ? @"UPDATE signup SET username=@newUsername, password=@newPassword, contact_number=@contact, uni_name=@uni WHERE username=@oldUsername"
+                                : @"UPDATE signup SET username=@newUsername, contact_number=@contact, uni_name=@uni WHERE username=@oldUsername";
 
                             using (SqlCommand cmd = new SqlCommand(updateSignup, conn, transaction))
                             {
                                 cmd.Parameters.AddWithValue("@newUsername", newUsername);
-                                cmd.Parameters.AddWithValue("@newPassword", newPassword);
+                                if (changePassword) cmd.Parameters.AddWithValue("@newPassword", newHash);
                                 cmd.Parameters.AddWithValue("@contact", string.IsNullOrEmpty(newContact) ? DBNull.Value : (object)newContact);
                                 cmd.Parameters.AddWithValue("@uni", string.IsNullOrEmpty(newUni) ? DBNull.Value : (object)newUni);
                                 cmd.Parameters.AddWithValue("@oldUsername", currentUsername);
@@ -111,15 +114,14 @@ namespace NeedyNest
                             }
 
                             // Update login table
-                            string updateLogin = @"UPDATE login SET 
-                                                 username = @newUsername,
-                                                 password = @newPassword
-                                                 WHERE username = @oldUsername";
+                            string updateLogin = changePassword
+                                ? @"UPDATE login SET username=@newUsername, password=@newPassword WHERE username=@oldUsername"
+                                : @"UPDATE login SET username=@newUsername WHERE username=@oldUsername";
 
                             using (SqlCommand cmd = new SqlCommand(updateLogin, conn, transaction))
                             {
                                 cmd.Parameters.AddWithValue("@newUsername", newUsername);
-                                cmd.Parameters.AddWithValue("@newPassword", newPassword);
+                                if (changePassword) cmd.Parameters.AddWithValue("@newPassword", newHash);
                                 cmd.Parameters.AddWithValue("@oldUsername", currentUsername);
                                 cmd.ExecuteNonQuery();
                             }

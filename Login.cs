@@ -227,11 +227,26 @@ namespace NeedyNest
                     }
                     else
                     {
-                        // User found, now check the password
-                        if (dt.Rows[0]["password"].ToString() != password)
+                        // Verify the password against the stored hash (or legacy plaintext).
+                        string stored = dt.Rows[0]["password"].ToString();
+                        if (!PasswordHelper.Verify(password, stored))
                         {
                             MessageBox.Show("Password incorrect.", "Login Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
+                        }
+
+                        // Transparently upgrade legacy plaintext accounts to a hash.
+                        string storedHash = stored;
+                        if (!PasswordHelper.IsHashed(stored))
+                        {
+                            storedHash = PasswordHelper.Hash(password);
+                            using (SqlCommand upg = new SqlCommand(
+                                "UPDATE signup SET password = @p WHERE username = @u", con))
+                            {
+                                upg.Parameters.AddWithValue("@p", storedHash);
+                                upg.Parameters.AddWithValue("@u", username);
+                                upg.ExecuteNonQuery();
+                            }
                         }
 
                         // Check if account is enabled
@@ -239,13 +254,13 @@ namespace NeedyNest
                         {
                             string role = dt.Rows[0]["role"].ToString();
 
-                            // Log the successful login attempt in the database
+                            // Log the successful login attempt (store the hash, never plaintext).
                             string insertLoginQuery = "INSERT INTO login (username, password, role, login_time) VALUES (@Username, @Password, @Role, GETDATE())";
 
                             using (SqlCommand insertCmd = new SqlCommand(insertLoginQuery, con))
                             {
                                 insertCmd.Parameters.AddWithValue("@Username", username);
-                                insertCmd.Parameters.AddWithValue("@Password", password); // Consider hashing passwords before storing
+                                insertCmd.Parameters.AddWithValue("@Password", storedHash);
                                 insertCmd.Parameters.AddWithValue("@Role", role);
                                 insertCmd.ExecuteNonQuery();
                             }
