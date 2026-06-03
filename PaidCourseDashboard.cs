@@ -16,7 +16,7 @@ namespace NeedyNest
        
      
 
-       private string connectionString = @"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;";
+       private string connectionString = DbHelper.ConnectionString;
 
         public PaidCourseDashboard(string uName)
         {

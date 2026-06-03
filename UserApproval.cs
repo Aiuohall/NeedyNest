@@ -9,7 +9,7 @@ namespace NeedyNest
     {
         
         private readonly string _userName;
-        private readonly SqlConnection con = new SqlConnection(@"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;");
+        private readonly SqlConnection con = DbHelper.GetConnection();
 
         public UserApproval(string userName)
         {

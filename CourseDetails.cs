@@ -13,7 +13,7 @@ namespace NeedyNest
 {
     public partial class CourseDetails : BaseForm
     {
-        private string connectionString = @"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;";
+        private string connectionString = DbHelper.ConnectionString;
         private string uName;
 
         public CourseDetails(string uName)

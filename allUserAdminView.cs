@@ -26,7 +26,7 @@ namespace NeedyNest
                            FROM signup";
 
             using (SqlConnection connection = new SqlConnection(
-                   @"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;"))
+                   DbHelper.ConnectionString))
             {
                 connection.Open();
                 using (SqlCommand command = new SqlCommand(query, connection))
@@ -115,7 +115,12 @@ namespace NeedyNest
 
         private void allUserAdminView_Load(object sender, EventArgs e)
         {
+        }
 
+        private void button_back_Click(object sender, EventArgs e)
+        {
+            new manageuserdashboardform(uName).Show();
+            this.Hide();
         }
 
         private void panel3_Paint(object sender, PaintEventArgs e)

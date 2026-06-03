@@ -38,12 +38,12 @@ namespace NeedyNest
         private void logoutbutton_Click(object sender, EventArgs e)
         {
             DialogResult result = MessageBox.Show("Want to Log Out?", "Log out Confirmation",
-                              MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (result == DialogResult.Yes)
             {
-                Login form1 = new Login();
+                Session.Clear();
+                new Login().Show();
                 this.Hide();
-                form1.Show();
             }
         }
 

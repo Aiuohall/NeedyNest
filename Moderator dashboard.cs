@@ -55,30 +55,14 @@ namespace NeedyNest
 
         private void logoutmoderatorbutton_Click(object sender, EventArgs e)
         {
-            DialogResult result = MessageBox.Show(
-      "Do you want to logout?",
-      "Confirm Logout",
-      MessageBoxButtons.YesNoCancel,
-      MessageBoxIcon.Question
-  );
-
+            DialogResult result = MessageBox.Show("Do you want to logout?", "Confirm Logout",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (result == DialogResult.Yes)
             {
-                // User confirmed logout, redirect to login
+                Session.Clear();
                 new Login().Show();
-                this.Close(); // Closes the current form instead of hiding it to free resources
+                this.Close();
             }
-            else if (result == DialogResult.No)
-            {
-                // User chose not to logout, do nothing
-                return;
-            }
-            else if (result == DialogResult.Cancel)
-            {
-                // If cancel is selected, do nothing
-                return;
-            }
-
         }
     }
 }

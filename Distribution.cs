@@ -96,10 +96,7 @@ namespace NeedyNest
             }
         }
 
-        private SqlConnection GetConnection()
-        {
-            return new SqlConnection(@"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;");
-        }
+        private SqlConnection GetConnection() => DbHelper.GetConnection();
 
         private void button_browse_Click(object sender, EventArgs e)
         {

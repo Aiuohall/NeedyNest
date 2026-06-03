@@ -8,7 +8,7 @@ namespace NeedyNest
     public partial class Course : BaseForm
     {
         private string uName;
-        private string connectionString = @"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;";
+        private readonly string connectionString = DbHelper.ConnectionString;
 
         public Course(string uName)
         {
@@ -48,7 +48,7 @@ namespace NeedyNest
                 return;
             }
 
-            string connectionString = @"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;";
+            string connectionString = DbHelper.ConnectionString;
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
@@ -95,7 +95,7 @@ namespace NeedyNest
             string role = "moderator";  // Default role if not found
             try
             {
-                using (SqlConnection conn = new SqlConnection(@"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;"))
+                using (SqlConnection conn = new SqlConnection(DbHelper.ConnectionString))
                 {
                     conn.Open();
                     string query = "SELECT role FROM [dbo].[signup] WHERE username = @username";  // Use the correct table

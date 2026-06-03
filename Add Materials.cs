@@ -91,10 +91,7 @@ namespace NeedyNest
                 MessageBox.Show("Error: " + ex.Message);
             }
         }
-        private SqlConnection GetConnection()
-        {
-            return new SqlConnection(@"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;");
-        }
+        private SqlConnection GetConnection() => DbHelper.GetConnection();
 
         private void heartfulsharingdash_Load(object sender, EventArgs e)
         {

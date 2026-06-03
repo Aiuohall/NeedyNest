@@ -22,7 +22,7 @@ namespace NeedyNest
             //this.uName = uName;
         }
 
-        SqlConnection con = new SqlConnection(@"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;");
+        SqlConnection con = DbHelper.GetConnection();
 
         private void label2_Click(object sender, EventArgs e)
         {
@@ -33,7 +33,7 @@ namespace NeedyNest
         {
             {
                 
-                using (SqlConnection con = new SqlConnection(@"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;"))
+                using (SqlConnection con = DbHelper.GetConnection())
                 {
                     try
                     {
@@ -64,7 +64,7 @@ namespace NeedyNest
             // Query to check if the username exists
             string userQuery = "SELECT * FROM signup WHERE username = @Username";
 
-            using (SqlConnection con = new SqlConnection(@"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;"))
+            using (SqlConnection con = DbHelper.GetConnection())
             {
                 using (SqlCommand cmd = new SqlCommand(userQuery, con))
                 {
@@ -104,22 +104,24 @@ namespace NeedyNest
                                 insertCmd.Parameters.AddWithValue("@Role", role);
                                 insertCmd.ExecuteNonQuery();
                             }
-                            // Store the logged-in username globally
                             Session.LoggedInUsername = username;
-                            uName=username;
+                            Session.LoggedInRole = role;
+                            uName = username;
 
                             // Redirect to respective dashboards
                             if (role == "Admin")
-                            {
                                 new admindashboardform(uName).Show();
-                            }
                             else if (role == "Moderator")
-                            {
                                 new moderatordash(uName).Show();
-                            }
                             else if (role == "User")
-                            {
                                 new userdashboard(uName).Show();
+                            else if (role == "Distributor")
+                                new form_distributor(uName).Show();
+                            else
+                            {
+                                MessageBox.Show("Unknown role. Please contact the admin.", "Login Error",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                return;
                             }
                             this.Hide();
                         }

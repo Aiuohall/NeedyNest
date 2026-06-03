@@ -16,7 +16,7 @@ namespace NeedyNest
     {
         string uName;
 
-        private SqlConnection con = new SqlConnection(@"Data Source=LAPTOP-MSIETGV1\SQLEXPRESS;Initial Catalog=NeedyNest;Integrated Security=True;");
+        private SqlConnection con = DbHelper.GetConnection();
 
         public PromoteModerator(string uName)
         {
