@@ -56,7 +56,11 @@ namespace NeedyNest
                 uName,
                 new[] { button_managecatagory, button_addbooks, AddPaidcourse, Deletepaidcoursebutton },
                 logoutmoderatorbutton,
-                new Control[] { welcomemoderatorlabel });
+                new Control[] { welcomemoderatorlabel },
+                badgeButton: null,
+                badgeCount: 0,
+                topContent: AdminAnalytics.BuildModeratorWidget(),
+                topContentHeight: AdminAnalytics.ModeratorPanelHeight);
         }
 
         private void logoutmoderatorbutton_Click(object sender, EventArgs e)

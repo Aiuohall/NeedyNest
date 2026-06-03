@@ -24,7 +24,22 @@ namespace NeedyNest
             textBox_Search.TextChanged += SearchTextBox_TextChanged;
             LoadAllUsers(); //cann load all user initially
             this.uName = uName;
-            this.Load += (s, e) => PageChrome.Apply(this, "Delete User");
+            this.Load += (s, e) =>
+            {
+                PageChrome.Apply(this, "Delete User");
+
+                var btnExport = new Button
+                {
+                    Text = "Export to CSV",
+                    Size = new Size(150, 36),
+                    Anchor = AnchorStyles.Top | AnchorStyles.Right
+                };
+                ThemeManager.StyleButton(btnExport);
+                btnExport.Location = new Point(ClientSize.Width - btnExport.Width - 24, 70);
+                btnExport.Click += (s2, e2) => CsvExporter.Export(dataGridView1, "users");
+                Controls.Add(btnExport);
+                btnExport.BringToFront();
+            };
         }
 
         private void LoadAllUsers()

@@ -134,7 +134,7 @@ namespace NeedyNest
                     cmd.Parameters.AddWithValue("@Username", usernametextbox.Text.Trim());
                     cmd.Parameters.AddWithValue("@UniName", uninametextbox.Text.Trim());
                     cmd.Parameters.AddWithValue("@ContactNumber", contactnumtextbox.Text.Trim());
-                    cmd.Parameters.AddWithValue("@Password", passtextbox.Text.Trim());
+                    cmd.Parameters.AddWithValue("@Password", PasswordHelper.Hash(passtextbox.Text.Trim()));
 
                     con.Open();
                     int rowsAffected = cmd.ExecuteNonQuery();

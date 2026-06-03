@@ -18,9 +18,10 @@ namespace NeedyNest
 
         string uName;
 
-        // ── Built-in offline test accounts ───────────────────────────────────────
-        // Lets you verify the UI / navigation when the database is unavailable.
-        // Format: username -> (password, role).  Remove or disable before release.
+#if DEBUG
+        // ── Built-in offline test accounts (DEBUG builds only) ───────────────────
+        // Compiled OUT of Release builds, so this backdoor can never ship.
+        // Format: username -> (password, role).
         private static readonly Dictionary<string, (string Password, string Role)> TestAccounts =
             new Dictionary<string, (string, string)>(StringComparer.OrdinalIgnoreCase)
         {
@@ -32,12 +33,14 @@ namespace NeedyNest
 
         // Hint banner shown when the database is offline, listing the test logins.
         private readonly Label lblTestHint = new Label();
+#endif
 
         public Login()
         {
             InitializeComponent();
             //this.uName = uName;
 
+#if DEBUG
             lblTestHint.Dock = DockStyle.Bottom;
             lblTestHint.Height = 64;
             lblTestHint.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -50,6 +53,7 @@ namespace NeedyNest
             lblTestHint.Visible = false;
             this.Controls.Add(lblTestHint);
             lblTestHint.BringToFront();
+#endif
         }
 
         SqlConnection con = DbHelper.GetConnection();
@@ -63,8 +67,8 @@ namespace NeedyNest
         {
             ApplyLoginDesign();
 
-            // Silently probe the database. If it's offline we don't nag the user
-            // with a popup — the built-in test accounts still allow login.
+#if DEBUG
+            // Silently probe the database so the offline test-account hint can show.
             try
             {
                 using (SqlConnection con = DbHelper.GetConnection())
@@ -77,6 +81,7 @@ namespace NeedyNest
             {
                 lblTestHint.Visible = true; // DB is down; show the test-account hint
             }
+#endif
         }
 
         /// <summary>
@@ -172,6 +177,19 @@ namespace NeedyNest
             exitbutton.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             exitbutton.Text = "Exit";
 
+            // "Forgot password?" link
+            var forgot = new LinkLabel
+            {
+                Text = "Forgot password?",
+                AutoSize = true,
+                Font = new Font("Segoe UI", 9.5F, FontStyle.Regular),
+                LinkColor = ThemeManager.HoverColor,
+                Location = new Point(left, 398)
+            };
+            forgot.LinkClicked += (s, e) => { new ResetPassword().Show(); this.Hide(); };
+            Controls.Add(forgot);
+            forgot.BringToFront();
+
             ResumeLayout(true);
         }
 
@@ -187,7 +205,8 @@ namespace NeedyNest
                 return;
             }
 
-            // ── Offline test-account bypass (no database required) ───────────────
+#if DEBUG
+            // ── Offline test-account bypass (DEBUG builds only) ──────────────────
             if (TestAccounts.TryGetValue(username, out var account))
             {
                 if (account.Password != password)
@@ -203,6 +222,7 @@ namespace NeedyNest
                 this.Hide();
                 return;
             }
+#endif
 
             // Query to check if the username exists
             string userQuery = "SELECT * FROM signup WHERE username = @Username";
@@ -227,11 +247,26 @@ namespace NeedyNest
                     }
                     else
                     {
-                        // User found, now check the password
-                        if (dt.Rows[0]["password"].ToString() != password)
+                        // Verify the password against the stored hash (or legacy plaintext).
+                        string stored = dt.Rows[0]["password"].ToString();
+                        if (!PasswordHelper.Verify(password, stored))
                         {
                             MessageBox.Show("Password incorrect.", "Login Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
+                        }
+
+                        // Transparently upgrade legacy plaintext accounts to a hash.
+                        string storedHash = stored;
+                        if (!PasswordHelper.IsHashed(stored))
+                        {
+                            storedHash = PasswordHelper.Hash(password);
+                            using (SqlCommand upg = new SqlCommand(
+                                "UPDATE signup SET password = @p WHERE username = @u", con))
+                            {
+                                upg.Parameters.AddWithValue("@p", storedHash);
+                                upg.Parameters.AddWithValue("@u", username);
+                                upg.ExecuteNonQuery();
+                            }
                         }
 
                         // Check if account is enabled
@@ -239,13 +274,13 @@ namespace NeedyNest
                         {
                             string role = dt.Rows[0]["role"].ToString();
 
-                            // Log the successful login attempt in the database
+                            // Log the successful login attempt (store the hash, never plaintext).
                             string insertLoginQuery = "INSERT INTO login (username, password, role, login_time) VALUES (@Username, @Password, @Role, GETDATE())";
 
                             using (SqlCommand insertCmd = new SqlCommand(insertLoginQuery, con))
                             {
                                 insertCmd.Parameters.AddWithValue("@Username", username);
-                                insertCmd.Parameters.AddWithValue("@Password", password); // Consider hashing passwords before storing
+                                insertCmd.Parameters.AddWithValue("@Password", storedHash);
                                 insertCmd.Parameters.AddWithValue("@Role", role);
                                 insertCmd.ExecuteNonQuery();
                             }

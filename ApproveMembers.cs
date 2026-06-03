@@ -3,6 +3,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
+using NeedyNest.Data;
 using NeedyNest.UI;
 
 namespace NeedyNest
@@ -33,19 +34,8 @@ namespace NeedyNest
         /// <summary>Count of members still waiting for approval (status = 0).</summary>
         public static int GetPendingCount()
         {
-            try
-            {
-                using (SqlConnection con = DbHelper.GetConnection())
-                using (SqlCommand cmd = new SqlCommand("SELECT COUNT(*) FROM signup WHERE status = 0", con))
-                {
-                    con.Open();
-                    return (int)cmd.ExecuteScalar();
-                }
-            }
-            catch
-            {
-                return 0; // DB offline or unreachable — show no badge
-            }
+            try { return UserRepository.CountPending(); }
+            catch { return 0; } // DB offline or unreachable — show no badge
         }
 
         private void BuildUi()
@@ -140,32 +130,48 @@ namespace NeedyNest
         {
             try
             {
-                using (SqlConnection con = DbHelper.GetConnection())
-                {
-                    string query =
-                        "SELECT username, first_name AS [First Name], last_name AS [Last Name], " +
-                        "role AS [Role], uni_name AS [University], contact_number AS [Contact] " +
-                        "FROM signup WHERE status = 0";
-                    SqlDataAdapter da = new SqlDataAdapter(query, con);
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
-                    grid.DataSource = dt;
+                DataTable dt = UserRepository.GetPending(); // data-access layer
+                grid.DataSource = dt;
 
-                    if (grid.Columns["username"] != null)
-                        grid.Columns["username"].Visible = false; // keep for lookup, hide from view
+                if (grid.Columns["username"] != null)
+                    grid.Columns["username"].Visible = false; // keep for lookup, hide from view
 
-                    bool any = dt.Rows.Count > 0;
-                    grid.Visible      = any;
-                    lblEmpty.Visible  = !any;
-                    btnApprove.Enabled = any;
-                    btnReject.Enabled  = any;
-                }
+                bool any = dt.Rows.Count > 0;
+                grid.Visible       = any;
+                lblEmpty.Visible   = !any;
+                btnApprove.Enabled = any;
+                btnReject.Enabled  = any;
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Error loading pending members: " + ex.Message, "Database Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        /// <summary>Best-effort notify: looks up the member's email and sends a note.
+        /// Silently skips if the email column doesn't exist, is empty, or SMTP is off.</summary>
+        private void NotifyMember(string username, string actionWord)
+        {
+            string email = null;
+            try
+            {
+                using (SqlConnection con = DbHelper.GetConnection())
+                using (var cmd = new SqlCommand("SELECT email FROM signup WHERE username = @u", con))
+                {
+                    cmd.Parameters.AddWithValue("@u", username);
+                    con.Open();
+                    object r = cmd.ExecuteScalar();
+                    email = (r == null || r == DBNull.Value) ? null : r.ToString();
+                }
+            }
+            catch { return; } // email column may not exist yet — that's fine
+
+            EmailHelper.Send(email,
+                $"NeedyNest — your account has been {actionWord}",
+                $"Hello {username},\n\nYour NeedyNest account has been {actionWord}." +
+                (actionWord == "approved" ? "\nYou can now log in and start using the system." : "") +
+                "\n\n— The NeedyNest Team");
         }
 
         private void UpdateStatus(int status, string actionWord)
@@ -187,15 +193,11 @@ namespace NeedyNest
 
             try
             {
-                using (SqlConnection con = DbHelper.GetConnection())
-                using (SqlCommand cmd = new SqlCommand(
-                    "UPDATE signup SET status = @status WHERE username = @username", con))
-                {
-                    cmd.Parameters.AddWithValue("@status", status);
-                    cmd.Parameters.AddWithValue("@username", username);
-                    con.Open();
-                    cmd.ExecuteNonQuery();
-                }
+                UserRepository.SetStatus(username, status); // data-access layer
+
+                // Best-effort email notification (no-op unless SMTP + email are set up).
+                NotifyMember(username, actionWord);
+
                 MessageBox.Show($"Member '{username}' has been {actionWord}.", "Done",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 LoadPending(); // pending list shrinks immediately

@@ -24,7 +24,9 @@ namespace NeedyNest.UI
             Button footerButton,
             Control[] hideControls = null,
             Button badgeButton = null,
-            int badgeCount = 0)
+            int badgeCount = 0,
+            Control topContent = null,
+            int topContentHeight = 0)
         {
             form.SuspendLayout();
 
@@ -32,7 +34,9 @@ namespace NeedyNest.UI
             form.FormBorderStyle = FormBorderStyle.Sizable;
             form.MaximizeBox     = true;
             form.MinimumSize     = new Size(960, 660);
-            form.ClientSize      = new Size(1180, 740);
+            // Give the analytics strip its own space instead of stealing it from the buttons.
+            int baseHeight = 740 + (topContent != null ? topContentHeight : 0);
+            form.ClientSize      = new Size(1180, Math.Min(baseHeight, 980));
             form.StartPosition   = FormStartPosition.CenterScreen;
             form.BackColor       = ThemeManager.BackgroundColor;
             form.Padding         = new Padding(0);
@@ -105,15 +109,26 @@ namespace NeedyNest.UI
                     footerButton.Location = new Point(footer.Width - footerButton.Width - 30, 12);
             }
 
-            // ── Content (fills the middle, centers the button stack) ───────────────
+            // ── Content (fills the middle) ─────────────────────────────────────────
             var content = new Panel { Dock = DockStyle.Fill, BackColor = ThemeManager.BackgroundColor };
+
+            // The buttons live in their own area so an optional stats/analytics panel
+            // can sit above them.
+            var buttonArea = new Panel { Dock = DockStyle.Fill, BackColor = ThemeManager.BackgroundColor, AutoScroll = true };
+            content.Controls.Add(buttonArea);          // Fill — add first so it sits behind
+            if (topContent != null)
+            {
+                topContent.Dock   = DockStyle.Top;
+                topContent.Height = topContentHeight > 0 ? topContentHeight : topContent.Height;
+                content.Controls.Add(topContent);      // Top — claims the top strip
+            }
 
             foreach (var b in actions)
             {
                 if (b == null) continue;
                 ThemeManager.StyleButton(b); // ensure code-created buttons are themed too
                 form.Controls.Remove(b);
-                content.Controls.Add(b);
+                buttonArea.Controls.Add(b);
             }
 
             // Optional red pending-count badge pinned to a button's top-right corner.
@@ -130,7 +145,7 @@ namespace NeedyNest.UI
                     AutoSize  = false,
                     Size      = new Size(26, 26)
                 };
-                content.Controls.Add(badge);
+                buttonArea.Controls.Add(badge);
             }
 
             void LayoutButtons()
@@ -139,12 +154,12 @@ namespace NeedyNest.UI
                 foreach (var b in actions) if (b != null) count++;
                 if (count == 0) return;
 
-                int w   = Math.Min(460, Math.Max(260, content.Width - 120));
-                int h   = 56;
-                int gap = 16;
+                int w   = Math.Min(460, Math.Max(260, buttonArea.ClientSize.Width - 120));
+                int h   = 54;
+                int gap = 14;
                 int totalH = count * h + (count - 1) * gap;
-                int x = (content.Width - w) / 2;
-                int y = Math.Max(28, (content.Height - totalH) / 2);
+                int x = (buttonArea.ClientSize.Width - w) / 2;
+                int y = Math.Max(24, (buttonArea.ClientSize.Height - totalH) / 2);
 
                 foreach (var b in actions)
                 {
@@ -164,7 +179,7 @@ namespace NeedyNest.UI
                     badge.BringToFront();
                 }
             }
-            content.Resize += (s, e) => LayoutButtons();
+            buttonArea.Resize += (s, e) => LayoutButtons();
 
             // Dock order matters: add the Fill control FIRST (it sits at the back and
             // takes whatever space the docked header/footer leave behind).

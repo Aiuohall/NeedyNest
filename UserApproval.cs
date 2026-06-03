@@ -47,8 +47,11 @@ namespace NeedyNest
                         usernametextbox.Text = reader["username"].ToString();
                         uninametextbox.Text = reader["uni_name"].ToString();
                         contactnumtextbox.Text = reader["contact_number"].ToString();
-                        passtextbox.Text = reader["password"].ToString();
-                        confirmpasstextbox.Text = reader["password"].ToString(); // Confirm password
+                        // Passwords are hashed — never displayed during review.
+                        passtextbox.Text = "";
+                        confirmpasstextbox.Text = "";
+                        passtextbox.ReadOnly = true;
+                        confirmpasstextbox.ReadOnly = true;
                     }
                     else
                     {
