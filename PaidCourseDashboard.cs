@@ -3,6 +3,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using NeedyNest.UI;
@@ -85,33 +86,58 @@ namespace NeedyNest
 
         private void OpenCourseContent(string courseId)
         {
+            OpenCourseMaterial(courseId);
+        }
+
+        /// <summary>
+        /// Opens a course's material: prefers the file stored in the database
+        /// (works on any machine), falling back to the legacy file path.
+        /// </summary>
+        private void OpenCourseMaterial(string courseId)
+        {
             try
             {
                 using (SqlConnection conn = new SqlConnection(connectionString))
+                using (SqlCommand cmd = new SqlCommand(
+                    "SELECT materialData, materialName, materialExt, materials FROM Course WHERE [course id] = @courseId", conn))
                 {
-                    string query = "SELECT materials FROM Course WHERE [course id] = @courseId";
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    cmd.Parameters.AddWithValue("@courseId", courseId);
+                    conn.Open();
+                    using (var r = cmd.ExecuteReader())
                     {
-                        cmd.Parameters.AddWithValue("@courseId", courseId);
-                        conn.Open();
-                        var materials = cmd.ExecuteScalar()?.ToString();
-
-                        if (!string.IsNullOrEmpty(materials))
+                        if (!r.Read())
                         {
-                           
-                            MessageBox.Show($"Opening course materials: {materials}", "Course Content",
-                                          MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            MessageBox.Show("Course not found.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            return;
+                        }
+
+                        bool hasBlob = r["materialData"] != DBNull.Value;
+                        if (hasBlob)
+                        {
+                            byte[] data = (byte[])r["materialData"];
+                            string name = r["materialName"] != DBNull.Value ? r["materialName"].ToString() : "course_material";
+                            string ext  = r["materialExt"]  != DBNull.Value ? r["materialExt"].ToString()  : "";
+                            string path = Path.Combine(Path.GetTempPath(),
+                                $"{Path.GetFileNameWithoutExtension(name)}_{DateTime.Now:yyyyMMddHHmmss}{ext}");
+                            File.WriteAllBytes(path, data);
+                            System.Diagnostics.Process.Start(path);
                         }
                         else
                         {
-                            MessageBox.Show("Course materials not found.", "Information",
-                                          MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            // Legacy course saved as a local path.
+                            string legacy = r["materials"]?.ToString();
+                            if (!string.IsNullOrEmpty(legacy) && File.Exists(legacy))
+                                System.Diagnostics.Process.Start(legacy);
+                            else
+                                MessageBox.Show("No materials available for this course.", "Information",
+                                              MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
+                Logger.Log(ex, "OpenCourseMaterial");
                 MessageBox.Show("Error accessing course content: " + ex.Message, "Database Error",
                               MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -348,9 +374,10 @@ namespace NeedyNest
                         }
                         else
                         {
+                            // PCI: never store the full card number or the CVC.
                             cmd.Parameters.AddWithValue("@bkash", DBNull.Value);
-                            cmd.Parameters.AddWithValue("@card", entercardinfotextbox.Text.Trim());
-                            cmd.Parameters.AddWithValue("@cvc", cvvtextbox.Text.Trim());
+                            cmd.Parameters.AddWithValue("@card", MaskCard(entercardinfotextbox.Text.Trim()));
+                            cmd.Parameters.AddWithValue("@cvc", DBNull.Value);
                         }
 
                         cmd.ExecuteNonQuery();
@@ -360,10 +387,18 @@ namespace NeedyNest
             }
             catch (Exception ex)
             {
+                Logger.Log(ex, "ProcessPayment");
                 MessageBox.Show("Payment processing failed: " + ex.Message, "Database Error",
                               MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
+        }
+
+        /// <summary>Returns a masked card number that only keeps the last 4 digits.</summary>
+        private static string MaskCard(string card)
+        {
+            string digits = new string((card ?? "").Where(char.IsDigit).ToArray());
+            return digits.Length >= 4 ? "**** **** **** " + digits.Substring(digits.Length - 4) : "****";
         }
 
         private void ProcessEnrollment()
@@ -623,35 +658,8 @@ namespace NeedyNest
                 return;
             }
 
-            // Get materials path from database
-            string materialsPath = GetCourseMaterialsPath(courseId);
-
-            if (!string.IsNullOrEmpty(materialsPath))
-            {
-                try
-                {
-                    if (File.Exists(materialsPath))
-                    {
-                        // Open with default associated program
-                        System.Diagnostics.Process.Start(materialsPath);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Course file not found at:\n" + materialsPath, "File Missing",
-                                      MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error opening file: " + ex.Message, "Error",
-                                  MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            else
-            {
-                MessageBox.Show("No materials available for this course.", "Information",
-                              MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
+            // Open the material stored in the DB (falls back to a legacy path).
+            OpenCourseMaterial(courseId);
         }
 
         private string GetCourseMaterialsPath(string courseId)

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -17,6 +18,8 @@ namespace NeedyNest
 
         private string currentUsername;
         private string connectionString= DbHelper.ConnectionString;
+        private PictureBox _photoBox;
+        private byte[] _photoBytes;     // set when the user picks a new photo
 
         public EditProfiledashboard(String username)
         {
@@ -24,6 +27,86 @@ namespace NeedyNest
             currentUsername = username;
             LoadDetails();
             this.Load += (s, e) => PageChrome.Apply(this, "Edit Profile");
+            this.Load += (s, e) => BuildPhotoUi();
+        }
+
+        private void BuildPhotoUi()
+        {
+            _photoBox = new PictureBox
+            {
+                Size = new Size(150, 150),
+                SizeMode = PictureBoxSizeMode.Zoom,
+                BorderStyle = BorderStyle.FixedSingle,
+                BackColor = Color.White,
+                Anchor = AnchorStyles.Top | AnchorStyles.Right
+            };
+            _photoBox.Location = new Point(ClientSize.Width - _photoBox.Width - 40, 90);
+
+            var btn = new Button { Text = "Change Photo", Size = new Size(150, 34), Anchor = AnchorStyles.Top | AnchorStyles.Right };
+            ThemeManager.StyleButton(btn);
+            btn.Location = new Point(_photoBox.Left, _photoBox.Bottom + 8);
+            btn.Click += (s, e) => ChoosePhoto();
+
+            Controls.Add(_photoBox);
+            Controls.Add(btn);
+            _photoBox.BringToFront();
+            btn.BringToFront();
+
+            LoadPhoto();
+        }
+
+        private void LoadPhoto()
+        {
+            try
+            {
+                using (SqlConnection con = DbHelper.GetConnection())
+                using (var cmd = new SqlCommand("SELECT photo FROM signup WHERE username = @u", con))
+                {
+                    cmd.Parameters.AddWithValue("@u", currentUsername);
+                    con.Open();
+                    object r = cmd.ExecuteScalar();
+                    if (r != null && r != DBNull.Value)
+                        using (var ms = new MemoryStream((byte[])r))
+                            _photoBox.Image = Image.FromStream(ms);
+                }
+            }
+            catch { /* photo column may not exist yet */ }
+        }
+
+        private void ChoosePhoto()
+        {
+            using (var dlg = new OpenFileDialog { Filter = "Image files|*.jpg;*.jpeg;*.png;*.bmp;*.gif" })
+            {
+                if (dlg.ShowDialog() != DialogResult.OK) return;
+                try
+                {
+                    _photoBytes = File.ReadAllBytes(dlg.FileName);
+                    using (var ms = new MemoryStream(_photoBytes))
+                        _photoBox.Image = Image.FromStream(ms);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log(ex, "ChoosePhoto");
+                    MessageBox.Show("Could not load that image.", "Photo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+        }
+
+        private void SavePhotoIfChanged(string username)
+        {
+            if (_photoBytes == null) return;
+            try
+            {
+                using (SqlConnection con = DbHelper.GetConnection())
+                using (var cmd = new SqlCommand("UPDATE signup SET photo = @p WHERE username = @u", con))
+                {
+                    cmd.Parameters.Add("@p", SqlDbType.VarBinary, -1).Value = _photoBytes;
+                    cmd.Parameters.AddWithValue("@u", username);
+                    con.Open();
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex) { Logger.Log(ex, "SavePhoto"); } // photo column may not exist
         }
 
         private void LoadDetails()
@@ -133,6 +216,9 @@ namespace NeedyNest
                             {
                                 currentUsername = newUsername;
                             }
+
+                            // Persist a newly chosen profile photo (best-effort).
+                            SavePhotoIfChanged(newUsername);
 
                             MessageBox.Show("Profile updated successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             this.Close();

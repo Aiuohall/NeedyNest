@@ -5,6 +5,8 @@ VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeedyNest", "NeedyNest.csproj", "{A45DC846-339F-4A70-B955-097CCB2F9DA7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeedyNest.Tests", "NeedyNest.Tests\NeedyNest.Tests.csproj", "{B1E5B2A1-1C2D-4E3F-9A8B-0C1D2E3F4A5B}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{46FD20F5-0B7A-4CA4-BBC5-F4E7B38A3CB6}"
 	ProjectSection(SolutionItems) = preProject
 		Paid Course.cs = Paid Course.cs
@@ -20,6 +22,10 @@ Global
 		{A45DC846-339F-4A70-B955-097CCB2F9DA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A45DC846-339F-4A70-B955-097CCB2F9DA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A45DC846-339F-4A70-B955-097CCB2F9DA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1E5B2A1-1C2D-4E3F-9A8B-0C1D2E3F4A5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1E5B2A1-1C2D-4E3F-9A8B-0C1D2E3F4A5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1E5B2A1-1C2D-4E3F-9A8B-0C1D2E3F4A5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1E5B2A1-1C2D-4E3F-9A8B-0C1D2E3F4A5B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

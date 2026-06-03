@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Windows.Forms;
 using NeedyNest.UI;
 
@@ -51,18 +53,31 @@ namespace NeedyNest
 
             string connectionString = DbHelper.ConnectionString;
 
+            // Read the selected file INTO the database so the course works on any machine.
+            byte[] fileBytes = null;
+            string fileName = null, fileExt = null;
+            if (!string.IsNullOrEmpty(materials) && File.Exists(materials))
+            {
+                fileBytes = File.ReadAllBytes(materials);
+                fileName  = Path.GetFileName(materials);
+                fileExt   = Path.GetExtension(materials);
+            }
+
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "INSERT INTO Course ([course name], [Description], [Price], [materials], [username], [role]) " +
-                               "VALUES (@name, @desc, @price, @materials, @username, @role)";  // No 'course id'
+                string query = "INSERT INTO Course ([course name], [Description], [Price], [materials], [username], [role], [materialData], [materialName], [materialExt]) " +
+                               "VALUES (@name, @desc, @price, @materials, @username, @role, @data, @mname, @mext)";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@name", courseName);
                 cmd.Parameters.AddWithValue("@desc", description);
                 cmd.Parameters.AddWithValue("@price", price);
-                cmd.Parameters.AddWithValue("@materials", materials);
+                cmd.Parameters.AddWithValue("@materials", (object)(fileName ?? materials) ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@username", uName);
                 cmd.Parameters.AddWithValue("@role", role);
+                cmd.Parameters.Add("@data", SqlDbType.VarBinary, -1).Value = (object)fileBytes ?? DBNull.Value;
+                cmd.Parameters.AddWithValue("@mname", (object)fileName ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@mext", (object)fileExt ?? DBNull.Value);
 
                 try
                 {
@@ -72,6 +87,7 @@ namespace NeedyNest
                 }
                 catch (Exception ex)
                 {
+                    Logger.Log(ex, "Course add");
                     MessageBox.Show("Database error: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }

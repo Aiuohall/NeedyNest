@@ -143,12 +143,21 @@
       <DependentUpon>PromoteModerator.cs</DependentUpon>
     </Compile>
     <Compile Include="AdminAnalytics.cs" />
+    <Compile Include="CsvExporter.cs" />
+    <Compile Include="Data\Db.cs" />
+    <Compile Include="Data\UserRepository.cs" />
     <Compile Include="ApproveMembers.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="DbHelper.cs" />
+    <Compile Include="EmailHelper.cs" />
+    <Compile Include="InternalsVisible.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="NavigationHelper.cs" />
     <Compile Include="PasswordHelper.cs" />
+    <Compile Include="ResetPassword.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Session.cs" />
     <Compile Include="SignUp.cs">
       <SubType>Form</SubType>
@@ -191,6 +200,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="UI\DashboardLayout.cs" />
+    <Compile Include="UI\GridPager.cs" />
     <Compile Include="UI\PageChrome.cs" />
     <Compile Include="UI\UploadFormLayout.cs" />
     <Compile Include="UI\ThemeManager.cs" />

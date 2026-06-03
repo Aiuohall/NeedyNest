@@ -18,17 +18,18 @@ namespace NeedyNest
             Application.SetCompatibleTextRenderingDefault(false);
             // initialize centralized theme settings
             ThemeManager.Initialize();
-            //Application.Run(new Payment());
-            //Application.Run(new userdashboard());
-            //Application.Run(new Form1());
-            //Application.Run(new signupform());
-            //  Application.Run(new heartfulsharingform());
-              Application.Run(new Login());
-            //  Application.Run(new Pdf());
-            // Application.Run(new heartfulsharingdash());
-            //  Application.Run(new managecatagorydashboard());
-          //  Application.Run(new AddBooks ());
 
+            // Centralized crash logging — record anything that slips through.
+            Application.ThreadException += (s, e) =>
+            {
+                Logger.Log(e.Exception, "Unhandled UI-thread exception");
+                MessageBox.Show("An unexpected error occurred and has been logged.\n\n" + e.Exception.Message,
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            };
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+                Logger.Log(e.ExceptionObject as Exception, "Unhandled non-UI exception");
+
+            Application.Run(new Login());
         }
 
     }
