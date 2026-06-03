@@ -470,8 +470,8 @@ namespace NeedyNest
             SuspendLayout();
 
             this.Text        = "Paid Courses";
-            this.ClientSize  = new Size(1040, 680);
-            this.MinimumSize = new Size(900, 640);
+            this.ClientSize  = new Size(1200, 780);
+            this.MinimumSize = new Size(1000, 700);
             this.BackColor   = ThemeManager.BackgroundColor;
             this.Padding     = new Padding(0);
 
@@ -542,7 +542,9 @@ namespace NeedyNest
                 if (c == null) return;
                 Controls.Remove(c);
                 c.Location = new Point(x, y);
-                c.BackColor = Color.Transparent;
+                // Only labels/checkboxes support a transparent background; TextBox and
+                // DateTimePicker throw ArgumentException if you try.
+                if (c is Label || c is CheckBox) c.BackColor = Color.Transparent;
                 parent.Controls.Add(c);
             }
 

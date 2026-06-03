@@ -31,8 +31,8 @@ namespace NeedyNest.UI
             // ── Window chrome: resizable + maximizable ───────────────────────────
             form.FormBorderStyle = FormBorderStyle.Sizable;
             form.MaximizeBox     = true;
-            form.MinimumSize     = new Size(780, 600);
-            form.ClientSize      = new Size(980, 660);
+            form.MinimumSize     = new Size(960, 660);
+            form.ClientSize      = new Size(1180, 740);
             form.StartPosition   = FormStartPosition.CenterScreen;
             form.BackColor       = ThemeManager.BackgroundColor;
             form.Padding         = new Padding(0);

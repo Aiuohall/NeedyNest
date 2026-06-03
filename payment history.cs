@@ -16,6 +16,7 @@ namespace NeedyNest
             InitializeComponent();
             this.uName = uName;
             this.Load += payment_history_Load;
+            this.Load += (s, e) => PageChrome.Apply(this, "Payment History");
         }
 
         private void payment_history_Load(object sender, EventArgs e)

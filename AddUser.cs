@@ -22,6 +22,7 @@ namespace NeedyNest
         {
             this.uName= uName;
             InitializeComponent();
+            this.Load += (s, e) => PageChrome.Apply(this, "Add User");
         }
 
         private void uninametextbox_TextChanged(object sender, EventArgs e)

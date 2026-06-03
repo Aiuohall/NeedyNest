@@ -37,6 +37,7 @@ namespace NeedyNest
             };
             this.Controls.Add(lblNoMatches);
             lblNoMatches.BringToFront();
+            this.Load += (s, e) => PageChrome.Apply(this, "Receive Books");
         }
 
         private void SearchTimer_Tick(object sender, EventArgs e)

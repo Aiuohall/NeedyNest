@@ -22,8 +22,8 @@ namespace NeedyNest.UI
             form.SuspendLayout();
             form.BackColor  = ThemeManager.BackgroundColor;
             form.Padding    = new Padding(0);
-            form.ClientSize = new Size(1000, 660);
-            form.MinimumSize = new Size(840, 560);
+            form.ClientSize = new Size(1180, 740);
+            form.MinimumSize = new Size(960, 620);
 
             for (int i = form.Controls.Count - 1; i >= 0; i--)
                 if (form.Controls[i] is StatusStrip) form.Controls.RemoveAt(i);
@@ -97,6 +97,7 @@ namespace NeedyNest.UI
             {
                 form.Controls.Remove(grid);
                 grid.Dock = DockStyle.Fill;
+                grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
                 body.Controls.Add(grid);
             }
 

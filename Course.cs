@@ -14,6 +14,7 @@ namespace NeedyNest
         {
             this.uName = uName;
             InitializeComponent();
+            this.Load += (s, e) => PageChrome.Apply(this, "Add Paid Course");
         }
 
         private void button_browse_Click_1(object sender, EventArgs e)

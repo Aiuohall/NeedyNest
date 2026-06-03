@@ -23,7 +23,7 @@ namespace NeedyNest
             InitializeComponent();
             currentUsername = username;
             LoadDetails();
-
+            this.Load += (s, e) => PageChrome.Apply(this, "Edit Profile");
         }
 
         private void LoadDetails()

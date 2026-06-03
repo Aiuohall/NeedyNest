@@ -51,8 +51,8 @@ namespace NeedyNest
         private void BuildUi()
         {
             this.Text          = "Approve Members";
-            this.ClientSize    = new Size(980, 620);
-            this.MinimumSize   = new Size(820, 540);
+            this.ClientSize    = new Size(1120, 720);
+            this.MinimumSize   = new Size(960, 600);
             this.Padding       = new Padding(0);
 
             // Header

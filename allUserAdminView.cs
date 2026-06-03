@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.SqlClient;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using NeedyNest.UI;
 
@@ -132,12 +133,51 @@ namespace NeedyNest
 
         private void allUserAdminView_Load(object sender, EventArgs e)
         {
-        }
+            SuspendLayout();
+            BackColor    = ThemeManager.BackgroundColor;
+            Padding      = new Padding(0);
+            ClientSize   = new Size(1180, 740);
+            MinimumSize  = new Size(960, 620);
 
-        private void button_back_Click(object sender, EventArgs e)
-        {
-            new manageuserdashboardform(uName).Show();
-            this.Hide();
+            for (int i = Controls.Count - 1; i >= 0; i--)
+                if (Controls[i] is StatusStrip) Controls.RemoveAt(i);
+
+            // Gradient header
+            var header = new Panel { Dock = DockStyle.Top, Height = 60, BackColor = ThemeManager.PrimaryColor };
+            header.Paint += (s, ev) =>
+            {
+                using (var b = new LinearGradientBrush(header.ClientRectangle,
+                           ThemeManager.PrimaryColor, ThemeManager.HoverColor, LinearGradientMode.Horizontal))
+                    ev.Graphics.FillRectangle(b, header.ClientRectangle);
+                using (var a = new SolidBrush(ThemeManager.AccentColor))
+                    ev.Graphics.FillRectangle(a, 0, header.Height - 3, header.Width, 3);
+            };
+            header.Controls.Add(new Label
+            {
+                Text = "All Users", ForeColor = Color.White, BackColor = Color.Transparent,
+                Font = new Font("Segoe UI", 14F, FontStyle.Bold), AutoSize = true, Location = new Point(24, 15)
+            });
+
+            // Footer with a themed Back button
+            var footer = new Panel { Dock = DockStyle.Bottom, Height = 64, BackColor = ThemeManager.BackgroundColor };
+            var back = new Button { Text = "Back", Size = new Size(140, 40) };
+            ThemeManager.StyleButton(back);
+            back.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            back.Click += (s, ev) => { new manageuserdashboardform(uName).Show(); this.Hide(); };
+            footer.Controls.Add(back);
+            footer.Resize += (s, ev) => back.Location = new Point(footer.Width - back.Width - 24, 12);
+
+            // Make the white card + the user list fill the available space
+            panel3.Dock    = DockStyle.Fill;
+            panel3.Padding = new Padding(16);
+            userpanel.Dock = DockStyle.Fill;
+
+            Controls.Add(header);
+            Controls.Add(footer);
+            header.BringToFront();
+
+            back.Location = new Point(footer.Width - back.Width - 24, 12);
+            ResumeLayout(true);
         }
 
         private void panel3_Paint(object sender, PaintEventArgs e)

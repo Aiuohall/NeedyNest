@@ -21,6 +21,7 @@ namespace NeedyNest
             InitializeComponent();
             this.uName = uName;
             LoadCourses();
+            this.Load += (s, e) => PageChrome.Apply(this, "Course Details");
         }
         private void LoadCourses()
         {

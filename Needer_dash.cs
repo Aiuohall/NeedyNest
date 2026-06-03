@@ -41,7 +41,8 @@ namespace NeedyNest
 
         private void Needer_DashBoard_Load(object sender, EventArgs e)
         {
-
+            DashboardLayout.Apply(this, "Needer Dashboard", uName,
+                new[] { button_Books }, button_back, null);
         }
     }
 }

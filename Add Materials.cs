@@ -23,6 +23,7 @@ namespace NeedyNest
             panel1.Visible = true;  //panel hide
             LoadSlides();  //load stored data in gridview
             this.uName = uName;
+            this.Load += (s, e) => PageChrome.Apply(this, "Add Course Slides");
         }
 
 

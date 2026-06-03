@@ -23,6 +23,7 @@ namespace NeedyNest
             InitializeComponent();
             LoadModerators(); //function delclare to load moderator initially
             this.uName = uName;
+            this.Load += (s, e) => PageChrome.Apply(this, "Promote Moderator");
         }
 
         private void LoadModerators()

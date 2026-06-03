@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace NeedyNest.UI
@@ -25,6 +26,29 @@ namespace NeedyNest.UI
         {
             ThemeManager.ApplyTo(this);
             AddStatusStrip();
+        }
+
+        /// <summary>
+        /// When this form becomes visible, tidy up any forms left in the background
+        /// by the app's "show next / hide current" navigation, so they don't pile up.
+        /// Deferred via BeginInvoke so the caller's own <c>this.Hide()</c> runs first.
+        /// </summary>
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            if (Modal) return;            // never disturb a modal dialog or its parent
+            BeginInvoke((Action)CloseBackgroundForms);
+        }
+
+        private void CloseBackgroundForms()
+        {
+            foreach (Form f in Application.OpenForms.Cast<Form>().ToArray())
+            {
+                if (f == this || f.Modal || f.Owner != null) continue;
+                // Keep the login window alive (it owns the app's lifetime) but hidden.
+                if (f.GetType().Name == "Login") { f.Hide(); continue; }
+                f.Close();
+            }
         }
 
         private void AddStatusStrip()
